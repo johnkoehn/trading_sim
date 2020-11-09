@@ -1,7 +1,8 @@
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
 pub enum Direction {
     Up,
-    Down
+    Down,
+    Both
 }
 
 // TODO: Remove unused traits from the bot in the simulation - i.e. bots become more scoped over time

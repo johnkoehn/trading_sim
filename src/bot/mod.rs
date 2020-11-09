@@ -11,6 +11,7 @@ pub enum ActionState {
     Netural
 }
 
+#[derive(Debug)]
 pub struct Bot {
     pub state: ActionState,
     pub assets: HashMap<Asset, f64>,
@@ -30,9 +31,7 @@ impl Bot {
         }
 
         bot.traits.insert(Trait::BuyDirection,  Value::from(5));
-        let test = Value::from(5.0);
-        let test2 = Value::from(5);
-        // test2.
+        // bot needs a config file to set the various traits
 
         bot
     }

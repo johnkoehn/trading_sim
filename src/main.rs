@@ -3,6 +3,7 @@ pub mod village;
 pub mod asset;
 pub mod price_data;
 pub mod bot;
+pub mod config;
 #[macro_use]
 extern crate serde_derive;
 use crate::simulation::Simulation;
@@ -53,7 +54,10 @@ fn main() {
 
     let bot = Bot::new();
 
-    let simulation = Simulation::new("./historicalData/etherumPriceData.json");
+    let simulation = Simulation::new("./historicalData/etherumPriceData.json", "./config/config.yaml");
 
     println!("{:?}", simulation);
+
+    // Change terminal to run in a loop. When user hits enter, create simulation
+    // If simulation fails to create, show error and have user hit enter to attempt creating again
 }
