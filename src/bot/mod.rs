@@ -2,7 +2,6 @@ pub mod traits;
 use traits::Traits;
 use crate::config::Config;
 use crate::asset::Asset;
-use rand::Rng;
 use std::collections::HashMap;
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
@@ -30,6 +29,8 @@ impl Bot {
         for asset in Asset::iterator() {
             bot.assets.insert(*asset, 0.0);
         }
+
+        bot.assets.insert(Asset::USD, config.starting_money);
 
         bot
     }

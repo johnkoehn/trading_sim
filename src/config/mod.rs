@@ -30,8 +30,8 @@ impl Error for ConfigError {
 pub struct Config {
     pub traits: traits::Traits,
     pub number_of_bots: u64,
-    pub number_of_generations: u64
-
+    pub number_of_generations: u64,
+    pub starting_money: f64
 }
 
 impl Config {
@@ -67,11 +67,27 @@ impl Config {
         }
 
         if self.traits.minimum_holding_periods.max < self.traits.minimum_holding_periods.min {
-            return Err(ConfigError::new("Traits.MinimumHoldingPeriods.Max can not be less then Traits.MinimumHoldingPeriods.Min".to_string()))
+            return Err(ConfigError::new("Traits.MinimumHoldingPeriods.Max cannot be less then Traits.MinimumHoldingPeriods.Min".to_string()))
         }
 
         if self.traits.maximum_holding_periods.max < self.traits.maximum_holding_periods.min {
-            return Err(ConfigError::new("Traits.MaximumHoldingPeriods.Max can not be less then Traits.MaximumHoldingPeriods.Min".to_string()))
+            return Err(ConfigError::new("Traits.MaximumHoldingPeriods.Max cannot be less then Traits.MaximumHoldingPeriods.Min".to_string()))
+        }
+
+        if self.traits.percent_purchase.max < self.traits.percent_purchase.min {
+            return Err(ConfigError::new("Traits.PercentPurchase.Max cannot be less then Traits.PercentPurchase.Min".to_string()))
+        }
+
+        if self.traits.percent_purchase.max < self.traits.percent_purchase.min {
+            return Err(ConfigError::new("Traits.PercentPurchase.Max cannot be less then Traits.PercentPurchase.Min".to_string()))
+        }
+
+        if self.traits.percent_purchase.min < 0.0 {
+            return Err(ConfigError::new("Traits.PercentPurchase.Min cannot be less then 0".to_string()))
+        }
+
+        if self.traits.percent_purchase.max > 100.0 {
+            return Err(ConfigError::new("Traits.PercentPurchase.Max cannot be greater then 100".to_string()))
         }
 
         Ok(())
@@ -89,7 +105,8 @@ mod traits {
         pub trailing_stop_loss: TrailingStopLoss,
         pub stop_loss: StopLoss,
         pub minimum_holding_periods: MinimumHoldingPeriods,
-        pub maximum_holding_periods: MaximumHoldingPeriods
+        pub maximum_holding_periods: MaximumHoldingPeriods,
+        pub percent_purchase: PercentPurchase
     }
 
     #[derive(Debug, Serialize, Deserialize)]
@@ -139,5 +156,12 @@ mod traits {
     pub struct MaximumHoldingPeriods {
         pub min: u64,
         pub max: u64
+    }
+
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "PascalCase")]
+    pub struct PercentPurchase {
+        pub min: f64,
+        pub max: f64
     }
 }
