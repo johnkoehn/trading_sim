@@ -1,18 +1,89 @@
 extern crate serde;
+use std::error::Error;
+use std::fmt;
+
+#[derive(Debug, Clone)]
+pub struct ConfigError {
+    description: String
+}
+
+impl ConfigError {
+    pub fn new(description: String) -> ConfigError {
+        ConfigError {
+            description
+        }
+    }
+}
+
+impl fmt::Display for ConfigError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.description)
+    }
+}
+
+impl Error for ConfigError {
+
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct Config {
-    pub traits: traits::Traits
+    pub traits: traits::Traits,
+    pub number_of_bots: u64,
+    pub number_of_generations: u64
+
 }
 
+impl Config {
+    pub fn validate_config(&self) -> Result<(), ConfigError> {
+
+        if self.traits.number_of_averaging_periods.max < self.traits.number_of_averaging_periods.min {
+            return Err(ConfigError::new("Traits.NumberOfAveragingPeriod.Max cannot be less then Traits.NumberOfAveragingPeriod.Min".to_string()))
+        }
+
+        if self.traits.minimum_buy_momentum.max < self.traits.minimum_buy_momentum.min {
+            return Err(ConfigError::new("Traits.MinimumBuyMomentum.Max cannot be less then Traits.MinimumBuyMomentum.Min".to_string()))
+        }
+
+        if self.traits.maximum_buy_momentum.max < self.traits.maximum_buy_momentum.min {
+            return Err(ConfigError::new("Traits.MaximumBuyMomentum.Max cannot be less then Traits.MaximumBuyMomentum.Min".to_string()))
+        }
+
+        if self.traits.trailing_stop_loss.max < self.traits.trailing_stop_loss.min {
+            return Err(ConfigError::new("Traits.TrailingStopLoss.Max cannot be less then Traits.TrailingStopLoss.Min".to_string()))
+        }
+
+        // max will never be less then 0.0 because max cannot be less then min
+        if self.traits.trailing_stop_loss.min < 0.0 {
+            return Err(ConfigError::new("Traits.TrailingStopLoss.Min cannot be less then 0".to_string()))
+        }
+
+        if self.traits.stop_loss.max < self.traits.stop_loss.min {
+            return Err(ConfigError::new("Traits.StopLoss.Max cannot be less then Traits.StopLoss.Min".to_string()))
+        }
+
+        if self.traits.stop_loss.min < 0.0 {
+            return Err(ConfigError::new("Traits.StopLoss.Min cannot be less then 0".to_string()))
+        }
+
+        if self.traits.minimum_holding_periods.max < self.traits.minimum_holding_periods.min {
+            return Err(ConfigError::new("Traits.MinimumHoldingPeriods.Max can not be less then Traits.MinimumHoldingPeriods.Min".to_string()))
+        }
+
+        if self.traits.maximum_holding_periods.max < self.traits.maximum_holding_periods.min {
+            return Err(ConfigError::new("Traits.MaximumHoldingPeriods.Max can not be less then Traits.MaximumHoldingPeriods.Min".to_string()))
+        }
+
+        Ok(())
+    }
+}
+
+// Add type to each ????
 mod traits {
     #[derive(Debug, Serialize, Deserialize)]
     #[serde(rename_all = "PascalCase")]
     pub struct Traits {
         pub number_of_averaging_periods: NumberOfAveragingPeriods,
-        pub buy_direction: BuyDirection,
-        pub sell_direction: SellDirection,
         pub minimum_buy_momentum: MinimumBuyMomentum,
         pub maximum_buy_momentum: MaximumBuyMomentum,
         pub trailing_stop_loss: TrailingStopLoss,
@@ -26,20 +97,6 @@ mod traits {
     pub struct NumberOfAveragingPeriods {
         pub min: u64,
         pub max: u64
-    }
-
-    #[derive(Debug, Serialize, Deserialize)]
-    #[serde(rename_all = "PascalCase")]
-    pub struct BuyDirection {
-        pub upward: bool,
-        pub downward: bool
-    }
-
-    #[derive(Debug, Serialize, Deserialize)]
-    #[serde(rename_all = "PascalCase")]
-    pub struct SellDirection {
-        pub upward: bool,
-        pub downward: bool
     }
 
     #[derive(Debug, Serialize, Deserialize)]

@@ -2,12 +2,12 @@ Traits:
   NumberOfAveragingPeriods:
     min: 1
     max: 10
-  BuyDirection:
-    upward: true
-    downward: true
-  SellDirection:
-    upward: true
-    downward: true
+  # BuyDirection:
+  #   upward: true
+  #   downward: true
+  # SellDirection:
+  #   upward: true
+  #   downward: true
   MinimumBuyMomentum:
     min: 0
     max: 10
@@ -20,9 +20,15 @@ Traits:
   StopLoss:
     min: 0
     max: 10
+  # Future Idea where if asset increase by x percent, we sell as exit strat
+  # SellPercentage:
+  #   min: 0
+  #   max: 10
   MinimumHoldingPeriods:
     min: 0
     max: 10
   MaximumHoldingPeriods:
     min: 5
     max: 100
+NumberOfBots: 100
+NumberOfGenerations: 50

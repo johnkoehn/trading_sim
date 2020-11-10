@@ -1,8 +1,9 @@
 pub mod traits;
-use traits::Trait;
-use std::collections::HashMap;
+use traits::Traits;
+use crate::config::Config;
 use crate::asset::Asset;
-use serde_json::{Value, Map, Number};
+use rand::Rng;
+use std::collections::HashMap;
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
 pub enum ActionState {
@@ -15,23 +16,20 @@ pub enum ActionState {
 pub struct Bot {
     pub state: ActionState,
     pub assets: HashMap<Asset, f64>,
-    pub traits: HashMap<Trait, Value>
+    pub traits: Traits
 }
 
 impl Bot {
-    pub fn new() -> Bot {
+    pub fn new(config: &Config) -> Bot {
         let mut bot = Bot {
             state: ActionState::Netural,
             assets: HashMap::new(),
-            traits: HashMap::new()
+            traits: Traits::new(config)
         };
 
         for asset in Asset::iterator() {
             bot.assets.insert(*asset, 0.0);
         }
-
-        bot.traits.insert(Trait::BuyDirection,  Value::from(5));
-        // bot needs a config file to set the various traits
 
         bot
     }

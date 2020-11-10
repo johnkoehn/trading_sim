@@ -9,54 +9,42 @@ extern crate serde_derive;
 use crate::simulation::Simulation;
 use crate::bot::Bot;
 use crate::village::Village;
+use std::error::Error;
 use std::thread;
 use std::sync::mpsc;
+use std::io;
 
-fn spawn_villages(number_of_villages: u32) -> Vec<Village> {
-    // for village in villages
-    let mut villages = Vec::new();
+fn run_simulation() -> Result<(), Box<dyn Error>> {
+    let simulation_result = Simulation::new("./historicalData/etherumPriceData.json", "./config/config.yaml");
+    let simulation = match simulation_result {
+        Ok(simulation) => simulation,
+        Err(e) => {
+            println!("{}", e.to_string());
+            return Err(e)
+        }
+    };
 
-    for i in 0..number_of_villages {
-        let village = Village::new();
-        villages.push(village);
-    }
+    println!("Simulation loaded");
+    simulation.state();
 
-    villages
+    println!("{:?}", &simulation);
+
+    Ok(())
 }
 
 fn main() {
-    // let mut simulation = Simulation::new();
-    // println!("Hello, world!");
-    // simulation.state();
-
-    // let mut villages = spawn_villages(10);
-
-    // let (tx, rx) = mpsc::channel();
-
-    // for mut village in villages {
-    //     let tx_copy = mpsc::Sender::clone(&tx);
-    //     thread::spawn(move || {
-    //         village.update();
-    //         tx_copy.send(village).unwrap();
-    //     });
-    // }
-
-    // for updated_village in rx {
-    //     println!("Updated village: {:?}", updated_village)
-    // }
-
-    // can a main thread send messages back to those threads?
-    // imagine reciving trades
-    // executing the trades
-    // and sending the trade data back ?
-
     println!("{:?}", asset::Asset::BTC);
 
-    let bot = Bot::new();
+    loop {
+        let mut input = String::new();
+        io::stdin()
+            .read_line(&mut input)
+            .expect("Failed to read line");
 
-    let simulation = Simulation::new("./historicalData/etherumPriceData.json", "./config/config.yaml");
-
-    println!("{:?}", simulation);
+        run_simulation();
+    }
+    // simulation.unwrap();
+    // println!("{:?}", simulation);
 
     // Change terminal to run in a loop. When user hits enter, create simulation
     // If simulation fails to create, show error and have user hit enter to attempt creating again
