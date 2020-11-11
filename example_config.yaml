@@ -31,8 +31,9 @@ Traits:
     Min: 5
     Max: 100
   PercentPurchase:
-    Min: 50
+    Min: 10
     Max: 100
 NumberOfBots: 100
 NumberOfGenerations: 50
 StartingMoney: 1000
+MinimumPurchaseSize: 100 # Mininimum purchase size allowed

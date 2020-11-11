@@ -12,13 +12,13 @@ pub enum Direction {
 // TODO: Remove unused traits from the bot in the simulation - i.e. bots become more scoped over time
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub struct Traits {
-    number_of_averaging_periods: u64,
-    minimum_buy_momentum: f64,
-    maximum_buy_momentum: f64,
-    trailing_stop_loss: f64,
-    stop_loss: f64,
-    minimum_holding_periods: u64,
-    maximum_holding_periods: u64
+    pub number_of_averaging_periods: u64,
+    pub minimum_buy_momentum: f64,
+    pub maximum_buy_momentum: f64,
+    pub trailing_stop_loss: f64,
+    pub stop_loss: f64,
+    pub minimum_holding_periods: u64,
+    pub maximum_holding_periods: u64,
 }
 
 impl Traits {

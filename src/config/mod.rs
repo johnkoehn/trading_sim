@@ -31,7 +31,8 @@ pub struct Config {
     pub traits: traits::Traits,
     pub number_of_bots: u64,
     pub number_of_generations: u64,
-    pub starting_money: f64
+    pub starting_money: f64,
+    pub minimum_purchase_size: f64
 }
 
 impl Config {

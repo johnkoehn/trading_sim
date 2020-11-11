@@ -37,6 +37,8 @@ impl Simulation {
             bots
         };
 
+        // NOTE: START SIMULATION Price data at max number of averaging periods to give all bots a fair condition
+
         Ok(simulation)
     }
 
