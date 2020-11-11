@@ -32,7 +32,8 @@ pub struct Config {
     pub number_of_bots: u64,
     pub number_of_generations: u64,
     pub starting_money: f64,
-    pub minimum_purchase_size: f64
+    pub minimum_purchase_size: f64,
+    pub fee: f64
 }
 
 impl Config {
@@ -89,6 +90,20 @@ impl Config {
 
         if self.traits.percent_purchase.max > 100.0 {
             return Err(ConfigError::new("Traits.PercentPurchase.Max cannot be greater then 100".to_string()))
+        }
+
+        if self.minimum_purchase_size < 0.0 {
+            return Err(ConfigError::new("MinimumPurchaseSize cannot be less then 0".to_string()))
+
+        }
+
+        if self.starting_money < 0.0 {
+            return Err(ConfigError::new("StartingMoney cannot be less then 0".to_string()))
+
+        }
+
+        if self.fee > 1.0 || self.fee < 0.0 {
+            return Err(ConfigError::new("Fee can only be from 0 to 1".to_string()))
         }
 
         Ok(())

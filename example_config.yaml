@@ -33,7 +33,9 @@ Traits:
   PercentPurchase:
     Min: 10
     Max: 100
+  # Waiting Periods -- number of periods passed inbetween checks
 NumberOfBots: 100
 NumberOfGenerations: 50
 StartingMoney: 1000
 MinimumPurchaseSize: 100 # Mininimum purchase size allowed
+Fee: .01 #the fee to charge on transactions

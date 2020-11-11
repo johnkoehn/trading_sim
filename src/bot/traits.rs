@@ -19,6 +19,7 @@ pub struct Traits {
     pub stop_loss: f64,
     pub minimum_holding_periods: u64,
     pub maximum_holding_periods: u64,
+    pub percent_purchase: f64
 }
 
 impl Traits {
@@ -32,6 +33,7 @@ impl Traits {
         let stop_loss = rng.gen_range(config.traits.stop_loss.min, config.traits.stop_loss.max);
         let minimum_holding_periods = rng.gen_range(config.traits.minimum_holding_periods.min, config.traits.minimum_holding_periods.max);
         let maximum_holding_periods = rng.gen_range(config.traits.maximum_holding_periods.min, config.traits.maximum_holding_periods.max);
+        let percent_purchase = rng.gen_range(config.traits.percent_purchase.min, config.traits.percent_purchase.max);
 
         Traits {
             number_of_averaging_periods,
@@ -40,7 +42,8 @@ impl Traits {
             trailing_stop_loss,
             stop_loss,
             minimum_holding_periods,
-            maximum_holding_periods
+            maximum_holding_periods,
+            percent_purchase
         }
     }
 }
