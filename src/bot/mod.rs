@@ -79,7 +79,7 @@ impl Bot {
         }
 
         let fee = money_to_spend * config.transaction_fee_as_percentage;
-        let purchase_amount = (money_to_spend - fee) * current_price_data.open;
+        let purchase_amount = (money_to_spend - fee) / current_price_data.open;
 
         let new_holding = CurrentHolding::new(current_price_data.open, purchase_amount, money_to_spend, Asset::ETH, &self.traits, fee);
 
