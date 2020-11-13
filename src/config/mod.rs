@@ -33,7 +33,8 @@ pub struct Config {
     pub number_of_generations: u64,
     pub starting_money: f64,
     pub minimum_purchase_size: f64,
-    pub fee: f64
+    pub fee: f64,
+    pub number_of_threads: u64
 }
 
 impl Config {

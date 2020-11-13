@@ -2,10 +2,10 @@ pub mod traits;
 pub mod holdings;
 use traits::Traits;
 use holdings::*;
+use std::sync::Arc;
 use crate::config::Config;
 use crate::asset::Asset;
 use crate::price_data::PriceData;
-use std::collections::HashMap;
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
 pub enum ActionState {
@@ -49,20 +49,24 @@ fn get_sell_reason(traits: &Traits, holding: &CurrentHolding, current_price_data
 
 impl Bot {
     pub fn new(config: &Config) -> Bot {
-        let mut bot = Bot {
+        Bot {
             state: ActionState::Netural,
             traits: Traits::new(config),
             money: config.starting_money,
             current_holdings: Vec::<CurrentHolding>::new(),
             sold_holdings: Vec::<SoldHolding>::new()
-        };
-
-        bot
+        }
     }
 
-    fn handle_buy(&mut self, config: &Config, current_price_data: &PriceData) {
+    fn handle_buy(&mut self, config: &Config, current_price_data: &PriceData, old_price_data: &PriceData) {
         let money_to_spend = self.money * self.traits.percent_purchase;
         if money_to_spend < config.minimum_purchase_size {
+            return;
+        }
+
+        let momentum = calculate_momentum(current_price_data.open, old_price_data.open);
+
+        if momentum < self.traits.minimum_buy_momentum || momentum > self.traits.maximum_buy_momentum {
             return;
         }
 
@@ -115,24 +119,15 @@ impl Bot {
     // In the future we should set how often to buy and sell
     // In addition, we should set if to buy on open or close
     // Sell would occur on the flip? Of maybe be configurable by trait
-    pub fn run_period(&mut self, price_history: &Vec<PriceData>, period: u64, config: &Config) {
+    pub fn run_period(&mut self, price_history: &Arc<Vec<PriceData>>, period: u64, config: &Arc<Config>) {
         if period < self.traits.number_of_averaging_periods {
             return;
         }
 
-        // verify purchase size
-        if self.money < config.minimum_purchase_size {
-            return;
-        }
-
-        // calculate the momentum
         let old_price_data = price_history.get((period - self.traits.number_of_averaging_periods) as usize).unwrap();
         let current_price_data = price_history.get((period - 1) as usize).unwrap();
-        let momentum = calculate_momentum(current_price_data.open, old_price_data.open);
 
-        self.handle_buy(&config, &current_price_data);
-
-        // handle sell
+        self.handle_buy(&config, &current_price_data, &old_price_data);
         self.handle_sell(&config, &current_price_data);
     }
 }

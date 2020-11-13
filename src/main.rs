@@ -27,6 +27,8 @@ fn run_simulation() -> Result<(), Box<dyn Error>> {
     println!("Simulation loaded");
     simulation.state();
 
+    simulation.run();
+
     // println!("{:?}", &simulation);
 
     Ok(())

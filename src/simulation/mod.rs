@@ -6,11 +6,15 @@ use std::error::Error;
 use crate::bot::Bot;
 use crate::price_data::{PriceData, PriceDataRaw};
 use crate::config::Config;
+use std::thread;
+use std::sync::mpsc;
+use std::sync::mpsc::{Sender, Receiver};
+use std::sync::Arc;
 
 #[derive(Debug)]
 pub struct Simulation {
-    price_history: Vec<PriceData>,
-    config: Config,
+    price_history: Arc<Vec<PriceData>>,
+    config: Arc<Config>,
     bots: Vec<Bot>
 }
 
@@ -32,14 +36,61 @@ impl Simulation {
         }
 
         let simulation = Simulation {
-            price_history,
-            config,
+            price_history: Arc::new(price_history),
+            config: Arc::new(config),
             bots
         };
 
-        // NOTE: START SIMULATION Price data at max number of averaging periods to give all bots a fair condition
-
         Ok(simulation)
+    }
+
+    pub fn run(&self) {
+        // start the simulation
+        // we will need to play around here to see what our options are for running the simulation
+        let (tx, rx): (Sender<Vec<Bot>>, Receiver<Vec<Bot>>) = mpsc::channel();
+
+        let mut children = Vec::new();
+
+        let number_of_bots_per_thread = self.config.number_of_bots / self.config.number_of_threads;
+
+        for thread_number in 0..self.config.number_of_threads {
+            let mut bots = Vec::<Bot>::new();
+            for _ in 0..number_of_bots_per_thread {
+                bots.push(Bot::new(&self.config));
+            }
+
+            let price_history = Arc::clone(&self.price_history);
+            let config = Arc::clone(&self.config);
+            let tx_copy = mpsc::Sender::clone(&tx);
+            let child = thread::spawn(move || {
+                // we start the simulation at the max number of averaging periods to give all bots a fair shot
+                for x in config.traits.number_of_averaging_periods.max..price_history.len() as u64 {
+                    bots
+                        .iter_mut()
+                        .for_each(|bot| bot.run_period(&price_history, x, &config))
+                }
+
+                // TODO: We need to force sell of products
+                // calculate fitness (do simple calculation)
+                // work on breeding
+                // after that we can run many generations
+                // and finally we can begin graphing data
+                // don't forget to properly handle inbreeding
+
+                let result = tx_copy.send(bots);
+
+                match result {
+                    Ok(v) => println!("Thread {} finished", thread_number),
+                    Err(e) => println!("Error sending message on thread {} with err: {:?}", thread_number, e)
+                }
+            });
+
+            children.push(child);
+        }
+
+        for _ in 0..self.config.number_of_threads {
+            rx.recv();
+        }
     }
 
     pub fn state(&self) {
