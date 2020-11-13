@@ -38,5 +38,5 @@ NumberOfBots: 100
 NumberOfGenerations: 50
 StartingMoney: 1000
 MinimumPurchaseSize: 100 # Mininimum purchase size allowed
-Fee: .01 #the fee to charge on transactions
+TransactionFeeAsPercentage: .01 #the fee to charge on transactions
 NumberOfThreads: 10

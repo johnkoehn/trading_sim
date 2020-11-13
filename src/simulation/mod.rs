@@ -70,13 +70,14 @@ impl Simulation {
                         .for_each(|bot| bot.run_period(&price_history, x, &config))
                 }
 
-                // TODO: We need to force sell of products
                 // calculate fitness (do simple calculation)
                 // work on breeding
                 // after that we can run many generations
                 // and finally we can begin graphing data
                 // don't forget to properly handle inbreeding
-
+                for bot in &bots {
+                    println!("{:?}", bot.money);
+                }
                 let result = tx_copy.send(bots);
 
                 match result {

@@ -33,7 +33,7 @@ pub struct Config {
     pub number_of_generations: u64,
     pub starting_money: f64,
     pub minimum_purchase_size: f64,
-    pub fee: f64,
+    pub transaction_fee_as_percentage: f64,
     pub number_of_threads: u64
 }
 
@@ -103,8 +103,8 @@ impl Config {
 
         }
 
-        if self.fee > 1.0 || self.fee < 0.0 {
-            return Err(ConfigError::new("Fee can only be from 0 to 1".to_string()))
+        if self.transaction_fee_as_percentage > 1.0 || self.transaction_fee_as_percentage < 0.0 {
+            return Err(ConfigError::new("TransactionFeeAsPercentage can only be from 0 to 1".to_string()))
         }
 
         Ok(())

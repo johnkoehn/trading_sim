@@ -7,6 +7,7 @@ pub enum SellReason {
     TrailingStopLoss,
     MaxPeriodsHeld,
     TargetedSellPrice, // TODO: Future trait to implement
+    Forced,
     None
 }
 
