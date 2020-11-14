@@ -179,29 +179,112 @@ mod bot_assets {
         assert_relative_eq!(bot.money, 969.9, max_relative = 0.001);
     }
 
-    // #[test]
-    // fn test_bot_sell_trailing_stop_loss() {
-    //     let traits = generate_default_traits();
-    //     let mut bot = generate_default_bot(traits);
-    //     let price_history = generate_price_history();
-    //     let config = generate_default_config();
+    #[test]
+    fn test_bot_sell_trailing_stop_loss() {
+        let traits = generate_default_traits();
+        let mut bot = generate_default_bot(traits);
+        let mut price_history = generate_price_history();
+        let config = generate_default_config();
 
-    //     let price_history_as_arc = Arc::from(price_history);
+        let mut price_point = price_history.get_mut(2).unwrap();
+        price_point.close = 103.0;
 
-    //     bot.run_period(&price_history_as_arc, 0, &config)
-    // }
+        let fourth_price_point = PriceData {
+            time: NaiveDateTime::from_timestamp(1515033000, 0),
+            low: 100.0,
+            high: 110.0,
+            open: 105.0,
+            close: 110.0,
+            volume: 100.0
+        };
+        price_history.push(fourth_price_point);
 
-    // #[test]
-    // fn test_bot_sell_max_periods_held() {
-    //     let mut traits = generate_default_traits();
-    //     traits.trailing_stop_loss = 2.0;
+        let price_history_as_arc = Arc::from(price_history);
 
-    //     let mut bot = generate_default_bot(traits);
-    //     let price_history = generate_price_history();
-    //     let config = generate_default_config();
+        bot.run_period(&price_history_as_arc, 0, &config);
+        bot.run_period(&price_history_as_arc, 1, &config);
+        bot.run_period(&price_history_as_arc, 2, &config);
 
-    //     let price_history_as_arc = Arc::from(price_history);
+        assert_eq!(bot.sold_holdings.len(), 1);
+        assert_eq!(bot.current_holdings.len(), 0);
 
-    //     bot.run_period(&price_history_as_arc, 0, &config)
-    // }
+        let first_sold_holding = bot.sold_holdings.get(0).unwrap();
+        assert_eq!(first_sold_holding.asset, Asset::ETH);
+        assert_relative_eq!(first_sold_holding.amount, 8.8235, max_relative = 0.001);
+        assert_relative_eq!(first_sold_holding.money_spent, 906.29, max_relative = 0.001);
+        assert_relative_eq!(first_sold_holding.purchase_price, 102.0, max_relative = 0.001);
+        assert_relative_eq!(first_sold_holding.stop_loss, 100.98, max_relative = 0.001);
+        assert_relative_eq!(first_sold_holding.trailing_stop_loss, 103.95, max_relative = 0.001);
+        assert_eq!(first_sold_holding.periods_held, 2);
+        assert_relative_eq!(first_sold_holding.buy_fee, 6.3, max_relative = 0.001);
+        assert_relative_eq!(first_sold_holding.sell_fee, 6.362, max_relative = 0.001);
+        assert_relative_eq!(first_sold_holding.money_from_sell, 902.613, max_relative = 0.001);
+        assert_relative_eq!(first_sold_holding.amount_gained, -3.838, max_relative = 0.001);
+        assert_relative_eq!(first_sold_holding.percent_gained, -0.4235, max_relative = 0.001);
+        assert_eq!(first_sold_holding.win, false);
+        assert_eq!(first_sold_holding.sell_reason, SellReason::TrailingStopLoss);
+
+        assert_relative_eq!(bot.money, 996.161, max_relative = 0.001);
+    }
+
+    #[test]
+    fn test_bot_sell_max_periods_held() {
+        let mut traits = generate_default_traits();
+
+        traits.maximum_holding_periods = 3;
+
+        let mut bot = generate_default_bot(traits);
+        let mut price_history = generate_price_history();
+        let config = generate_default_config();
+
+        let mut price_point = price_history.get_mut(2).unwrap();
+        price_point.close = 105.0;
+
+        let fourth_price_point = PriceData {
+            time: NaiveDateTime::from_timestamp(1515033000, 0),
+            low: 100.0,
+            high: 110.0,
+            open: 105.0,
+            close: 105.0,
+            volume: 100.0
+        };
+        price_history.push(fourth_price_point);
+        let fifth_price_point = PriceData {
+            time: NaiveDateTime::from_timestamp(1515039000, 0),
+            low: 100.0,
+            high: 110.0,
+            open: 105.0,
+            close: 105.0,
+            volume: 100.0
+        };
+        price_history.push(fifth_price_point);
+
+        let price_history_as_arc = Arc::from(price_history);
+
+        bot.run_period(&price_history_as_arc, 0, &config);
+        bot.run_period(&price_history_as_arc, 1, &config);
+        bot.run_period(&price_history_as_arc, 2, &config);
+        bot.run_period(&price_history_as_arc, 3, &config);
+
+        assert_eq!(bot.sold_holdings.len(), 1);
+        assert_eq!(bot.current_holdings.len(), 0);
+
+        let first_sold_holding = bot.sold_holdings.get(0).unwrap();
+        assert_eq!(first_sold_holding.asset, Asset::ETH);
+        assert_relative_eq!(first_sold_holding.amount, 8.8235, max_relative = 0.001);
+        assert_relative_eq!(first_sold_holding.money_spent, 906.29, max_relative = 0.001);
+        assert_relative_eq!(first_sold_holding.purchase_price, 102.0, max_relative = 0.001);
+        assert_relative_eq!(first_sold_holding.stop_loss, 100.98, max_relative = 0.001);
+        assert_relative_eq!(first_sold_holding.trailing_stop_loss, 103.95, max_relative = 0.001);
+        assert_eq!(first_sold_holding.periods_held, 3);
+        assert_relative_eq!(first_sold_holding.buy_fee, 6.3, max_relative = 0.001);
+        assert_relative_eq!(first_sold_holding.sell_fee, 6.485, max_relative = 0.001);
+        assert_relative_eq!(first_sold_holding.money_from_sell, 919.982, max_relative = 0.001);
+        assert_relative_eq!(first_sold_holding.amount_gained, 13.685, max_relative = 0.001);
+        assert_relative_eq!(first_sold_holding.percent_gained, 1.510, max_relative = 0.001);
+        assert_eq!(first_sold_holding.win, true);
+        assert_eq!(first_sold_holding.sell_reason, SellReason::MaxPeriodsHeld);
+
+        assert_relative_eq!(bot.money, 1013.6851, max_relative = 0.001);
+    }
 }
