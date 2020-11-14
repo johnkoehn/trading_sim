@@ -7,16 +7,8 @@ use crate::config::Config;
 use crate::asset::Asset;
 use crate::price_data::PriceData;
 
-#[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
-pub enum ActionState {
-    Buy,
-    Sell,
-    Netural
-}
-
 #[derive(Debug)]
 pub struct Bot {
-    pub state: ActionState,
     pub traits: Traits,
     pub money: f64,
     pub current_holdings: Vec<CurrentHolding>,
@@ -47,18 +39,23 @@ fn get_sell_reason(traits: &Traits, holding: &CurrentHolding, current_price_data
     SellReason::None
 }
 
-fn calculate_sell_fee(price: f64, transaction_fee_as_percentage: f64) -> f64 {
-    price * transaction_fee_as_percentage
+fn calculate_sell_fee(price: f64, transaction_fee_as_percentage: f64, amount: f64) -> f64 {
+    price * amount * transaction_fee_as_percentage
 }
 
 fn calculate_money_from_sell(price: f64, sell_fee: f64, amount: f64) -> f64 {
     (price * amount) - sell_fee
 }
 
+fn calculate_amount_to_buy(money_to_spend: f64, current_price: f64) -> f64 {
+    // we round to four decimal places
+    let purchase_amount = money_to_spend /  current_price;
+    return (purchase_amount * 10000.0).round() / 10000.0
+}
+
 impl Bot {
     pub fn new(config: &Config) -> Bot {
         Bot {
-            state: ActionState::Netural,
             traits: Traits::new(config),
             money: config.starting_money,
             current_holdings: Vec::<CurrentHolding>::new(),
@@ -72,19 +69,23 @@ impl Bot {
             return;
         }
 
-        let momentum = calculate_momentum(current_price_data.open, old_price_data.open);
+        let current_price = current_price_data.open;
+        let momentum = calculate_momentum(current_price, old_price_data.open);
 
         if momentum < self.traits.minimum_buy_momentum || momentum > self.traits.maximum_buy_momentum {
             return;
         }
 
-        let fee = money_to_spend * config.transaction_fee_as_percentage;
-        let purchase_amount = (money_to_spend - fee) / current_price_data.open;
+        let amount_to_buy = calculate_amount_to_buy(money_to_spend, current_price);
+        let money_spent_no_fee = amount_to_buy * current_price;
 
-        let new_holding = CurrentHolding::new(current_price_data.open, purchase_amount, money_to_spend, Asset::ETH, &self.traits, fee);
+        let fee = money_spent_no_fee * config.transaction_fee_as_percentage;
+        let money_spent = money_spent_no_fee + fee;
+
+        let new_holding = CurrentHolding::new(current_price, amount_to_buy, money_spent, Asset::ETH, &self.traits, fee);
 
         self.current_holdings.push(new_holding);
-        self.money -= money_to_spend;
+        self.money -= money_spent;
     }
 
     fn handle_sell(&mut self, config: &Config, current_price_data: &PriceData) {
@@ -96,7 +97,7 @@ impl Bot {
 
         for holding in &mut self.current_holdings {
             let sell_holding = |reason: SellReason| -> SoldHolding {
-                let sell_fee = calculate_sell_fee(current_price_data.close, config.transaction_fee_as_percentage);
+                let sell_fee = calculate_sell_fee(current_price_data.close, config.transaction_fee_as_percentage, holding.amount);
                 let money_from_sell = calculate_money_from_sell(current_price_data.close, sell_fee, holding.amount);
 
                 SoldHolding::new(&holding, current_price_data.close, money_from_sell, sell_fee, reason)
@@ -123,8 +124,10 @@ impl Bot {
     }
 
     fn sell_all(&mut self, current_price_data: &PriceData, transaction_fee_as_percentage: f64) {
-        for holding in &self.current_holdings {
-            let sell_fee = calculate_sell_fee(current_price_data.close, transaction_fee_as_percentage);
+        for holding in &mut self.current_holdings {
+            holding.update_for_new_period(current_price_data.close, &self.traits);
+
+            let sell_fee = calculate_sell_fee(current_price_data.close, transaction_fee_as_percentage, holding.amount);
             let money_from_sell = calculate_money_from_sell(current_price_data.close, sell_fee, holding.amount);
 
             self.sold_holdings.push(SoldHolding::new(&holding, current_price_data.close, money_from_sell, sell_fee, SellReason::Forced));
@@ -139,16 +142,16 @@ impl Bot {
     // In addition, we should set if to buy on open or close
     // Sell would occur on the flip? Or maybe be configurable by trait
     pub fn run_period(&mut self, price_history: &Arc<Vec<PriceData>>, period: u64, config: &Arc<Config>) {
-        let old_price_data = price_history.get((period - self.traits.number_of_averaging_periods) as usize).unwrap();
-        let current_price_data = price_history.get((period - 1) as usize).unwrap();
-
-        // end of run
-        if price_history.len() - 1 == period  as usize {
-            self.sell_all(&current_price_data, config.transaction_fee_as_percentage);
+        if period < self.traits.number_of_averaging_periods {
             return;
         }
 
-        if period < self.traits.number_of_averaging_periods {
+        let old_price_data = price_history.get((period - self.traits.number_of_averaging_periods) as usize).unwrap();
+        let current_price_data = price_history.get((period) as usize).unwrap();
+
+        // end of run
+        if price_history.len() == (period + 1)  as usize {
+            self.sell_all(&current_price_data, config.transaction_fee_as_percentage);
             return;
         }
 

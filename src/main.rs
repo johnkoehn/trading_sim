@@ -7,12 +7,13 @@ pub mod config;
 #[macro_use]
 extern crate serde_derive;
 use crate::simulation::Simulation;
-use crate::bot::Bot;
-use crate::village::Village;
+// use crate::bot::Bot;
+// use crate::village::Village;
 use std::error::Error;
-use std::thread;
-use std::sync::mpsc;
+// use std::thread;
+// use std::sync::mpsc;
 use std::io;
+// use std::fs;
 
 fn run_simulation() -> Result<(), Box<dyn Error>> {
     let simulation_result = Simulation::new("./historicalData/etherumPriceData.json", "./config/config.yaml");
@@ -43,7 +44,7 @@ fn main() {
             .read_line(&mut input)
             .expect("Failed to read line");
 
-        run_simulation();
+        run_simulation().unwrap();
     }
     // simulation.unwrap();
     // println!("{:?}", simulation);

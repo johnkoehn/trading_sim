@@ -68,6 +68,8 @@ pub struct SoldHolding {
     pub percent_gained: f64,
     pub amount_gained: f64,
     pub money_from_sell: f64,
+    pub stop_loss: f64, // the price to stop out at
+    pub trailing_stop_loss: f64, // current trailing price to stop out at
     pub win: bool,
     pub buy_fee: f64,
     pub sell_fee: f64
@@ -83,6 +85,8 @@ impl SoldHolding {
             periods_held: holding_sold.periods_held,
             sell_reason,
             sell_price,
+            stop_loss: holding_sold.stop_loss,
+            trailing_stop_loss: holding_sold.trailing_stop_loss,
             money_from_sell,
             percent_gained: calculate_percent_gained(holding_sold.money_spent, money_from_sell),
             amount_gained: money_from_sell - holding_sold.money_spent,
