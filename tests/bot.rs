@@ -36,6 +36,7 @@ mod bot_assets {
 
     fn generate_default_bot (traits: Traits) -> Bot {
         Bot {
+            id: 0,
             traits,
             money: 1000.0,
             current_holdings: Vec::<CurrentHolding>::new(),

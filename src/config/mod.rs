@@ -34,7 +34,8 @@ pub struct Config {
     pub starting_money: f64,
     pub minimum_purchase_size: f64,
     pub transaction_fee_as_percentage: f64,
-    pub number_of_threads: u64
+    pub number_of_threads: u64,
+    pub mutation_chance: f64
 }
 
 impl Config {
@@ -113,6 +114,10 @@ impl Config {
 
         if self.traits.target_sell_percentage.min > self.traits.target_sell_percentage.max {
             return Err(ConfigError::new("Traits.TargetSellPercentage.Min must be less then Traits.TargetSellPercentage.Max".to_string()))
+        }
+
+        if self.mutation_chance < 0.0 || self.mutation_chance > 1.0 {
+            return Err(ConfigError::new("MutationChance must be between 0 and 1".to_string()))
         }
 
         Ok(())

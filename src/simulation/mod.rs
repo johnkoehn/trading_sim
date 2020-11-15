@@ -10,12 +10,63 @@ use std::thread;
 use std::sync::mpsc;
 use std::sync::mpsc::{Sender, Receiver};
 use std::sync::Arc;
+use std::collections::HashMap;
+use rand::Rng;
 
 #[derive(Debug)]
 pub struct Simulation {
     price_history: Arc<Vec<PriceData>>,
     config: Arc<Config>,
     bots: Vec<Bot>
+}
+
+
+pub fn breed(bots: &Vec::<Bot>, config: &Config) -> Vec::<Bot> {
+    // caculate total fitness
+    let total_fitness: f64 = bots.iter()
+        .map(|bot| bot.calculate_fitness())
+        .sum();
+
+    let mut breeding_pool: HashMap<u64, &Bot> = HashMap::new();
+
+    for bot in bots {
+        // calculate number of tickets
+        // always round up
+        // we may have over 100 breeding tickets -- that's okay :}
+
+        let fitness = bot.calculate_fitness();
+        if fitness > 0.0 {
+            let percent_of_fitness = (fitness / total_fitness) * 100.0;
+            let number_of_tickets = percent_of_fitness.ceil() as u64;
+
+            for _ in 0..number_of_tickets {
+                let position = breeding_pool.len() as u64;
+                breeding_pool.insert(position, &bot);
+            }
+        }
+    }
+
+    let mut new_bots = Vec::<Bot>::new();
+    let mut rng = rand::thread_rng();
+
+    while new_bots.len() < config.number_of_bots as usize {
+        let index_one = rng.gen_range(0, breeding_pool.len() - 1) as u64;
+
+        let bot_one = breeding_pool.get(&index_one).unwrap();
+        loop {
+            let index_two = rng.gen_range(0, breeding_pool.len() - 1) as u64;
+            let bot_two = breeding_pool.get(&index_two).unwrap();
+
+            if bot_one.id != bot_two.id {
+                // breed
+                let baby_bot = bot_one.breed(&bot_two, &mut rng, config, new_bots.len() as u64);
+                new_bots.push(baby_bot);
+                break;
+            }
+        }
+    }
+
+    new_bots
 }
 
 // https://doc.rust-lang.org/book/ch09-02-recoverable-errors-with-result.html
@@ -31,8 +82,8 @@ impl Simulation {
         config.validate_config()?;
 
         let mut bots = Vec::<Bot>::new();
-        for _x in 0..config.number_of_bots {
-            bots.push(Bot::new(&config))
+        for id in 0..config.number_of_bots {
+            bots.push(Bot::new(&config, id));
         }
 
         let simulation = Simulation {
@@ -44,7 +95,13 @@ impl Simulation {
         Ok(simulation)
     }
 
-    pub fn run(&self) {
+    pub fn run(&mut self, generation: u64) {
+        if generation > self.config.number_of_generations {
+            return;
+        }
+
+        println!("Generation {}", generation);
+
         // start the simulation
         // we will need to play around here to see what our options are for running the simulation
         let (tx, rx): (Sender<Vec<Bot>>, Receiver<Vec<Bot>>) = mpsc::channel();
@@ -55,8 +112,10 @@ impl Simulation {
 
         for thread_number in 0..self.config.number_of_threads {
             let mut bots = Vec::<Bot>::new();
-            for _ in 0..number_of_bots_per_thread {
-                bots.push(Bot::new(&self.config));
+            for _x in 0..number_of_bots_per_thread {
+                let bot = self.bots.pop().unwrap();
+
+                bots.push(bot);
             }
 
             let price_history = Arc::clone(&self.price_history);
@@ -76,9 +135,9 @@ impl Simulation {
                 // after that we can run many generations
                 // and finally we can begin graphing data
                 // don't forget to properly handle inbreeding
-                for bot in &bots {
-                    println!("{:?}", bot.money);
-                }
+                // for bot in &bots {
+                //     println!("{:?}", bot.money);
+                // }
                 let result = tx_copy.send(bots);
 
                 match result {
@@ -90,9 +149,22 @@ impl Simulation {
             children.push(child);
         }
 
+        let mut bots_post_simulation = Vec::<Bot>::new();
         for _ in 0..self.config.number_of_threads {
-            rx.recv();
+            let mut bots = rx.recv().unwrap();
+            bots_post_simulation.append(&mut bots);
         }
+
+        // sort the bots by money
+        bots_post_simulation.sort_by(|a, b| b.money.partial_cmp(&a.money).unwrap());
+
+        for bot in &bots_post_simulation {
+            println!("{:?}", bot.money);
+        }
+
+        let next_generation_bots = breed(&bots_post_simulation, &self.config);
+        self.bots = next_generation_bots;
+        self.run(generation + 1);
     }
 
     pub fn state(&self) {

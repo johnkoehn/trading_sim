@@ -3,12 +3,14 @@ pub mod holdings;
 use traits::Traits;
 use holdings::*;
 use std::sync::Arc;
+use rand::Rng;
 use crate::config::Config;
 use crate::asset::Asset;
 use crate::price_data::PriceData;
 
 #[derive(Debug)]
 pub struct Bot {
+    pub id: u64,
     pub traits: Traits,
     pub money: f64,
     pub current_holdings: Vec<CurrentHolding>,
@@ -59,8 +61,9 @@ fn calculate_amount_to_buy(money_to_spend: f64, current_price: f64) -> f64 {
 }
 
 impl Bot {
-    pub fn new(config: &Config) -> Bot {
+    pub fn new(config: &Config, id: u64) -> Bot {
         Bot {
+            id,
             traits: Traits::new(config),
             money: config.starting_money,
             current_holdings: Vec::<CurrentHolding>::new(),
@@ -171,5 +174,87 @@ impl Bot {
 
         self.handle_buy(&config, &current_price_data, &old_price_data);
         self.handle_sell(&config, &current_price_data);
+    }
+
+    // for now the calculation for fitness will be simple
+    // we can work on a more complicated version once we have graphs in place
+    pub fn calculate_fitness(&self) -> f64 {
+        if self.sold_holdings.len() == 0 {
+            return 0.0;
+        }
+
+        return self.money;
+    }
+
+    pub fn breed<R: Rng>(&self, bot_two: &Bot, rng: &mut R, config: &Config, id: u64) -> Bot {
+        let traits_one = self.traits;
+        let traits_two = bot_two.traits;
+
+        let number_of_averaging_periods = match rng.gen_bool(0.5) {
+            true => traits_one.number_of_averaging_periods,
+            false => traits_two.number_of_averaging_periods
+        };
+
+        let minimum_buy_momentum = match rng.gen_bool(0.5) {
+            true => traits_one.minimum_buy_momentum,
+            false => traits_two.minimum_buy_momentum
+        };
+
+        let maximum_buy_momentum = match rng.gen_bool(0.5) {
+            true => traits_one.maximum_buy_momentum,
+            false => traits_two.maximum_buy_momentum
+        };
+
+        let trailing_stop_loss = match rng.gen_bool(0.5) {
+            true => traits_one.trailing_stop_loss,
+            false => traits_two.trailing_stop_loss
+        };
+
+        let stop_loss = match rng.gen_bool(0.5) {
+            true => traits_one.stop_loss,
+            false => traits_two.stop_loss
+        };
+
+        let minimum_holding_periods = match rng.gen_bool(0.5) {
+            true => traits_one.minimum_holding_periods,
+            false => traits_two.minimum_holding_periods
+        };
+
+        let maximum_holding_periods = match rng.gen_bool(0.5) {
+            true => traits_one.maximum_holding_periods,
+            false => traits_two.maximum_holding_periods
+        };
+
+        let percent_purchase = match rng.gen_bool(0.5) {
+            true => traits_one.percent_purchase,
+            false => traits_two.percent_purchase
+        };
+
+        let target_sell_percentage = match rng.gen_bool(0.5) {
+            true => traits_one.target_sell_percentage,
+            false => traits_two.target_sell_percentage
+        };
+
+        let mut traits = Traits {
+            number_of_averaging_periods,
+            minimum_buy_momentum,
+            maximum_buy_momentum,
+            trailing_stop_loss,
+            stop_loss,
+            minimum_holding_periods,
+            maximum_holding_periods,
+            percent_purchase,
+            target_sell_percentage
+        };
+
+        traits.mutate(rng, config);
+
+        return Bot {
+            id,
+            traits,
+            money: config.starting_money,
+            current_holdings: Vec::<CurrentHolding>::new(),
+            sold_holdings: Vec::<SoldHolding>::new()
+        };
     }
 }
