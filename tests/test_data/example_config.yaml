@@ -20,8 +20,6 @@ Traits:
   StopLoss:
     Min: 0
     Max: 10
-  # After an order is fufilled we immeditly set a targeted sell price
-  # Using this field, if the price is fufilled during the period, we sell the assets
   TargetSellPercentage:
     Min: 1
     Max: 10

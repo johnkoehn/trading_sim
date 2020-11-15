@@ -31,7 +31,11 @@ pub struct Config {
     pub traits: traits::Traits,
     pub number_of_bots: u64,
     pub number_of_generations: u64,
-    pub starting_money: f64
+    pub starting_money: f64,
+    pub minimum_purchase_size: f64,
+    pub transaction_fee_as_percentage: f64,
+    pub number_of_threads: u64,
+    pub mutation_chance: f64
 }
 
 impl Config {
@@ -90,6 +94,32 @@ impl Config {
             return Err(ConfigError::new("Traits.PercentPurchase.Max cannot be greater then 100".to_string()))
         }
 
+        if self.minimum_purchase_size < 0.0 {
+            return Err(ConfigError::new("MinimumPurchaseSize cannot be less then 0".to_string()))
+
+        }
+
+        if self.starting_money < 0.0 {
+            return Err(ConfigError::new("StartingMoney cannot be less then 0".to_string()))
+
+        }
+
+        if self.transaction_fee_as_percentage > 1.0 || self.transaction_fee_as_percentage < 0.0 {
+            return Err(ConfigError::new("TransactionFeeAsPercentage can only be from 0 to 1".to_string()))
+        }
+
+        if self.traits.target_sell_percentage.min <= 0.0 {
+            return Err(ConfigError::new("Traits.TargetedSellPrice.Min must be greater then 0".to_string()))
+        }
+
+        if self.traits.target_sell_percentage.min > self.traits.target_sell_percentage.max {
+            return Err(ConfigError::new("Traits.TargetSellPercentage.Min must be less then Traits.TargetSellPercentage.Max".to_string()))
+        }
+
+        if self.mutation_chance < 0.0 || self.mutation_chance > 1.0 {
+            return Err(ConfigError::new("MutationChance must be between 0 and 1".to_string()))
+        }
+
         Ok(())
     }
 }
@@ -106,7 +136,8 @@ mod traits {
         pub stop_loss: StopLoss,
         pub minimum_holding_periods: MinimumHoldingPeriods,
         pub maximum_holding_periods: MaximumHoldingPeriods,
-        pub percent_purchase: PercentPurchase
+        pub percent_purchase: PercentPurchase,
+        pub target_sell_percentage: TargetSellPercentage
     }
 
     #[derive(Debug, Serialize, Deserialize)]
@@ -161,6 +192,13 @@ mod traits {
     #[derive(Debug, Serialize, Deserialize)]
     #[serde(rename_all = "PascalCase")]
     pub struct PercentPurchase {
+        pub min: f64,
+        pub max: f64
+    }
+
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "PascalCase")]
+    pub struct TargetSellPercentage {
         pub min: f64,
         pub max: f64
     }
