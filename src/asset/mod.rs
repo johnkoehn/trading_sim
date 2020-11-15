@@ -1,6 +1,6 @@
 use std::slice::Iter;
 
-#[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, Hash, Debug, Serialize, Deserialize)]
 pub enum Asset {
     BTC,
     ETH,

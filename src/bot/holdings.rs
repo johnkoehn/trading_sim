@@ -1,17 +1,17 @@
 use crate::asset::Asset;
 use crate::bot::Traits;
 
-#[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, Hash, Debug, Serialize, Deserialize)]
 pub enum SellReason {
     StopLoss,
     TrailingStopLoss,
     MaxPeriodsHeld,
-    TargetedSellPrice, // TODO: Future trait to implement
+    TargetedSellPrice,
     Forced,
     None
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub struct CurrentHolding {
     pub asset: Asset,
     pub amount: f64,
@@ -62,7 +62,7 @@ impl CurrentHolding {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct SoldHolding {
     pub asset: Asset,
     pub amount: f64,

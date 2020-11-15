@@ -12,6 +12,7 @@ use std::sync::mpsc::{Sender, Receiver};
 use std::sync::Arc;
 use std::collections::HashMap;
 use rand::Rng;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug)]
 pub struct Simulation {
@@ -24,7 +25,7 @@ pub struct Simulation {
 pub fn breed(bots: &Vec::<Bot>, config: &Config) -> Vec::<Bot> {
     // caculate total fitness
     let total_fitness: f64 = bots.iter()
-        .map(|bot| bot.calculate_fitness())
+        .map(|bot| bot.fitness)
         .sum();
 
     let mut breeding_pool: HashMap<u64, &Bot> = HashMap::new();
@@ -34,7 +35,7 @@ pub fn breed(bots: &Vec::<Bot>, config: &Config) -> Vec::<Bot> {
         // always round up
         // we may have over 100 breeding tickets -- that's okay :}
 
-        let fitness = bot.calculate_fitness();
+        let fitness = bot.fitness;
         if fitness > 0.0 {
             let percent_of_fitness = (fitness / total_fitness) * 100.0;
             let number_of_tickets = percent_of_fitness.ceil() as u64;
@@ -141,7 +142,7 @@ impl Simulation {
                 let result = tx_copy.send(bots);
 
                 match result {
-                    Ok(v) => println!("Thread {} finished", thread_number),
+                    Ok(_v) => println!("Thread {} finished", thread_number),
                     Err(e) => println!("Error sending message on thread {} with err: {:?}", thread_number, e)
                 }
             });
@@ -155,12 +156,17 @@ impl Simulation {
             bots_post_simulation.append(&mut bots);
         }
 
-        // sort the bots by money
-        bots_post_simulation.sort_by(|a, b| b.money.partial_cmp(&a.money).unwrap());
+        // sort the bots by fitness
+        bots_post_simulation.sort_by(|a, b| b.fitness.partial_cmp(&a.fitness).unwrap());
 
         for bot in &bots_post_simulation {
             println!("{:?}", bot.money);
         }
+
+        // write the bots to a generations file
+        let results_as_json = serde_json::to_string_pretty(&bots_post_simulation).unwrap();
+        let file_name = format!("./simulations/current/generation_{}.json", generation);
+        fs::write(file_name, results_as_json).unwrap();
 
         let next_generation_bots = breed(&bots_post_simulation, &self.config);
         self.bots = next_generation_bots;

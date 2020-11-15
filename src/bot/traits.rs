@@ -10,7 +10,7 @@ pub enum Direction {
 }
 
 // TODO: Remove unused traits from the bot in the simulation - i.e. bots become more scoped over time
-#[derive(Copy, Clone, PartialEq, Debug)]
+#[derive(Copy, Clone, PartialEq, Debug, Serialize, Deserialize)]
 pub struct Traits {
     pub number_of_averaging_periods: u64,
     pub minimum_buy_momentum: f64,

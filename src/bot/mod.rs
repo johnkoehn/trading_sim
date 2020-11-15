@@ -7,14 +7,16 @@ use rand::Rng;
 use crate::config::Config;
 use crate::asset::Asset;
 use crate::price_data::PriceData;
+// use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Bot {
     pub id: u64,
     pub traits: Traits,
     pub money: f64,
     pub current_holdings: Vec<CurrentHolding>,
-    pub sold_holdings: Vec<SoldHolding>
+    pub sold_holdings: Vec<SoldHolding>,
+    pub fitness: f64
 }
 
 fn calculate_momentum(current_price: f64, previous_price: f64) -> f64 {
@@ -67,7 +69,8 @@ impl Bot {
             traits: Traits::new(config),
             money: config.starting_money,
             current_holdings: Vec::<CurrentHolding>::new(),
-            sold_holdings: Vec::<SoldHolding>::new()
+            sold_holdings: Vec::<SoldHolding>::new(),
+            fitness: 0.0
         }
     }
 
@@ -151,6 +154,9 @@ impl Bot {
             self.money += money_from_sell;
         }
         self.current_holdings.clear();
+
+        // in sell all we update the fitness of the bot since it's meant to be the final run
+        self.calculate_fitness();
     }
 
     // TODO: For now we will check every period
@@ -178,12 +184,13 @@ impl Bot {
 
     // for now the calculation for fitness will be simple
     // we can work on a more complicated version once we have graphs in place
-    pub fn calculate_fitness(&self) -> f64 {
+    fn calculate_fitness(&mut self) {
         if self.sold_holdings.len() == 0 {
-            return 0.0;
+            self.fitness = 0.0;
+            return;
         }
 
-        return self.money;
+        self.fitness = self.money;
     }
 
     pub fn breed<R: Rng>(&self, bot_two: &Bot, rng: &mut R, config: &Config, id: u64) -> Bot {
@@ -254,7 +261,8 @@ impl Bot {
             traits,
             money: config.starting_money,
             current_holdings: Vec::<CurrentHolding>::new(),
-            sold_holdings: Vec::<SoldHolding>::new()
+            sold_holdings: Vec::<SoldHolding>::new(),
+            fitness: 0.0
         };
     }
 }

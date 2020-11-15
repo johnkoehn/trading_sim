@@ -4,6 +4,11 @@ The simulation system is software to help humans simulate and test trading metho
 
 The system is not meant to find the best trading algorithm for the given data set. Instead it acts as a tool to help the user find a trading algorithm they can use to provide liquidity in markets. It's the combination of human ingenuity and the incredible ability of computers to simulate an extraordinary amount of scenarios that will lead to desirable results.
 
+# How to setup the project
+1. Have Rust and cargo installed
+2. Create a folder called config and a file called config.yaml. Use example_config.yaml as a starting point
+3. cargo run will load and start the simulation :)
+
 # Genetic Algorithm - Long Term Vision
 
 In biology, we have discovered the human body to be infinitely more complex then we initially imagined. The human body is affected by a wide range of attributes, ranging from the gut microbiome, nutrient, the environment, thoughts, desires, genes etc.

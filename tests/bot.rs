@@ -40,7 +40,8 @@ mod bot_assets {
             traits,
             money: 1000.0,
             current_holdings: Vec::<CurrentHolding>::new(),
-            sold_holdings: Vec::<SoldHolding>::new()
+            sold_holdings: Vec::<SoldHolding>::new(),
+            fitness: 0.0
         }
     }
 
