@@ -20,6 +20,11 @@ fn calculate_momentum(current_price: f64, previous_price: f64) -> f64 {
 }
 
 fn get_sell_reason(traits: &Traits, holding: &CurrentHolding, current_price_data: &PriceData) -> SellReason {
+    // targeted sell price must always execute before anything else baby
+    if holding.targeted_sell_price < current_price_data.high {
+        return SellReason::TargetedSellPrice;
+    }
+
     if holding.periods_held >= traits.maximum_holding_periods {
         return SellReason::MaxPeriodsHeld;
     }
@@ -96,12 +101,21 @@ impl Bot {
         let mut sold_holdings: Vec::<SoldHolding> = Vec::<SoldHolding>::new();
 
         for holding in &mut self.current_holdings {
+            // lambda that sells the holding
             let sell_holding = |reason: SellReason| -> SoldHolding {
+                if reason == SellReason::TargetedSellPrice {
+                    let sell_fee = calculate_sell_fee(holding.targeted_sell_price, config.transaction_fee_as_percentage, holding.amount);
+                    let money_from_sell = calculate_money_from_sell(holding.targeted_sell_price, sell_fee, holding.amount);
+
+                    return SoldHolding::new(&holding, holding.targeted_sell_price, money_from_sell, sell_fee, reason);
+                }
+
                 let sell_fee = calculate_sell_fee(current_price_data.close, config.transaction_fee_as_percentage, holding.amount);
                 let money_from_sell = calculate_money_from_sell(current_price_data.close, sell_fee, holding.amount);
 
-                SoldHolding::new(&holding, current_price_data.close, money_from_sell, sell_fee, reason)
+                return SoldHolding::new(&holding, current_price_data.close, money_from_sell, sell_fee, reason);
             };
+
             let sell_reason = get_sell_reason(&self.traits, &holding, &current_price_data);
 
             if sell_reason != SellReason::None {

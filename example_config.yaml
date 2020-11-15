@@ -20,10 +20,11 @@ Traits:
   StopLoss:
     Min: 0
     Max: 10
-  # Future Idea where if asset increase by x percent, we sell as exit strat
-  # SellPercentage:
-  #   Min: 0
-  #   Max: 10
+  # After an order is fufilled we immeditly set a targeted sell price
+  # Using this field, if the price is fufilled during the period, we sell the assets
+  TargetSellPercentage:
+    Min: 1
+    Max: 10
   MinimumHoldingPeriods:
     Min: 0
     Max: 10

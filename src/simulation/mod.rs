@@ -64,7 +64,8 @@ impl Simulation {
             let tx_copy = mpsc::Sender::clone(&tx);
             let child = thread::spawn(move || {
                 // we start the simulation at the max number of averaging periods to give all bots a fair shot
-                for x in config.traits.number_of_averaging_periods.max..price_history.len() as u64 {
+                // for x in config.traits.number_of_averaging_periods.max..price_history.len() as u64 {
+                for x in 0..price_history.len() as u64 {
                     bots
                         .iter_mut()
                         .for_each(|bot| bot.run_period(&price_history, x, &config))

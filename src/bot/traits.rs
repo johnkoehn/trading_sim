@@ -19,7 +19,8 @@ pub struct Traits {
     pub stop_loss: f64,
     pub minimum_holding_periods: u64,
     pub maximum_holding_periods: u64,
-    pub percent_purchase: f64
+    pub percent_purchase: f64,
+    pub target_sell_percentage: f64
 }
 
 impl Traits {
@@ -34,6 +35,7 @@ impl Traits {
         let minimum_holding_periods = rng.gen_range(config.traits.minimum_holding_periods.min, config.traits.minimum_holding_periods.max);
         let maximum_holding_periods = rng.gen_range(config.traits.maximum_holding_periods.min, config.traits.maximum_holding_periods.max);
         let percent_purchase = rng.gen_range(config.traits.percent_purchase.min, config.traits.percent_purchase.max);
+        let target_sell_percentage = rng.gen_range(config.traits.target_sell_percentage.min, config.traits.target_sell_percentage.max);
 
         Traits {
             number_of_averaging_periods,
@@ -43,7 +45,8 @@ impl Traits {
             stop_loss,
             minimum_holding_periods,
             maximum_holding_periods,
-            percent_purchase
+            percent_purchase,
+            target_sell_percentage
         }
     }
 }

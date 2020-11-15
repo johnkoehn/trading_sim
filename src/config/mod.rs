@@ -107,6 +107,14 @@ impl Config {
             return Err(ConfigError::new("TransactionFeeAsPercentage can only be from 0 to 1".to_string()))
         }
 
+        if self.traits.target_sell_percentage.min <= 0.0 {
+            return Err(ConfigError::new("Traits.TargetedSellPrice.Min must be greater then 0".to_string()))
+        }
+
+        if self.traits.target_sell_percentage.min > self.traits.target_sell_percentage.max {
+            return Err(ConfigError::new("Traits.TargetSellPercentage.Min must be less then Traits.TargetSellPercentage.Max".to_string()))
+        }
+
         Ok(())
     }
 }
@@ -123,7 +131,8 @@ mod traits {
         pub stop_loss: StopLoss,
         pub minimum_holding_periods: MinimumHoldingPeriods,
         pub maximum_holding_periods: MaximumHoldingPeriods,
-        pub percent_purchase: PercentPurchase
+        pub percent_purchase: PercentPurchase,
+        pub target_sell_percentage: TargetSellPercentage
     }
 
     #[derive(Debug, Serialize, Deserialize)]
@@ -178,6 +187,13 @@ mod traits {
     #[derive(Debug, Serialize, Deserialize)]
     #[serde(rename_all = "PascalCase")]
     pub struct PercentPurchase {
+        pub min: f64,
+        pub max: f64
+    }
+
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "PascalCase")]
+    pub struct TargetSellPercentage {
         pub min: f64,
         pub max: f64
     }

@@ -20,7 +20,8 @@ pub struct CurrentHolding {
     pub stop_loss: f64, // the price to stop out at
     pub trailing_stop_loss: f64, // current trailing price to stop out at
     pub periods_held: u64,
-    pub buy_fee: f64
+    pub buy_fee: f64,
+    pub targeted_sell_price: f64
 }
 
 fn calculate_stop_loss(price: f64, stop_loss_percentage: f64) -> f64 {
@@ -29,6 +30,10 @@ fn calculate_stop_loss(price: f64, stop_loss_percentage: f64) -> f64 {
 
 fn calculate_percent_gained(money_spent: f64, money_from_sell: f64) -> f64 {
     ((money_from_sell - money_spent) / money_spent) * 100.0
+}
+
+fn calculate_targeted_sell_price(purchase_price: f64, target_sell_percentage: f64) -> f64 {
+    purchase_price + (purchase_price * (target_sell_percentage / 100.0))
 }
 
 impl CurrentHolding {
@@ -41,7 +46,8 @@ impl CurrentHolding {
             stop_loss: calculate_stop_loss(purchase_price, traits.stop_loss),
             trailing_stop_loss: calculate_stop_loss(purchase_price, traits.trailing_stop_loss),
             periods_held: 0,
-            buy_fee
+            buy_fee,
+            targeted_sell_price: calculate_targeted_sell_price(purchase_price, traits.target_sell_percentage)
         }
     }
 
@@ -72,7 +78,8 @@ pub struct SoldHolding {
     pub trailing_stop_loss: f64, // current trailing price to stop out at
     pub win: bool,
     pub buy_fee: f64,
-    pub sell_fee: f64
+    pub sell_fee: f64,
+    pub targeted_sell_price: f64
 }
 
 impl SoldHolding {
@@ -92,7 +99,8 @@ impl SoldHolding {
             amount_gained: money_from_sell - holding_sold.money_spent,
             win: (money_from_sell - holding_sold.money_spent) > 0.0,
             buy_fee: holding_sold.buy_fee,
-            sell_fee
+            sell_fee,
+            targeted_sell_price: holding_sold.targeted_sell_price
         }
     }
 }
