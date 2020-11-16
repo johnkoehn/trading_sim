@@ -3,3 +3,4 @@ historicalData
 /config
 .vscode
 simulations
+__pycache__
