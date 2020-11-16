@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 import json
 import os
+import graphing
 
 def load_run_results():
     run_results = []
@@ -64,7 +65,7 @@ def graph_highest_fitness_by_generation(run_results):
     plt.title('Highest Fitness')
 
 
-run_results = load_run_results()
+run_results = graphing.load_run_results()
 print(len(run_results))
 
 # average_fitness_by_generation_figure = plt.figure()
