@@ -11,6 +11,7 @@ use std::error::Error;
 use std::io;
 
 fn run_simulation() -> Result<(), Box<dyn Error>> {
+    // TODO: Handle situations where /simulations/{{dir}} doesn't exist (i.e. create the directory)
     let simulation_result = Simulation::new("./historicalData/etherumPriceData.json", "./config/config.yaml");
     let mut simulation = match simulation_result {
         Ok(simulation) => simulation,
