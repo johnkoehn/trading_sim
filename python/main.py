@@ -25,6 +25,8 @@ def graph_average_fitness_by_generation(run_results):
         y.append(average_fitness_for_generation)
         x.append(gen_number + 1)
 
+    plt.figure()
+
     # plotting the points
     plt.plot(x, y)
 
@@ -36,13 +38,51 @@ def graph_average_fitness_by_generation(run_results):
     # giving a title to my graph
     plt.title('Average Fitness')
 
-    # function to show the plot
-    plt.show()
+def graph_highest_fitness_by_generation(run_results):
+    x = []
+    y = []
+    for gen_number, generation in enumerate(run_results):
+        highest_fitness_in_generation = None
 
+        for bot in generation:
+            highest_fitness_in_generation = highest_fitness_in_generation if highest_fitness_in_generation != None and highest_fitness_in_generation > bot["fitness"] else bot["fitness"]
+
+        y.append(highest_fitness_in_generation)
+        x.append(gen_number + 1)
+
+    plt.figure()
+
+    # plotting the points
+    plt.plot(x, y)
+
+    # naming the x axis
+    plt.xlabel('Generation')
+    # naming the y axis
+    plt.ylabel('Highest Fitness')
+
+    # giving a title to my graph
+    plt.title('Highest Fitness')
 
 
 run_results = load_run_results()
 print(len(run_results))
 
+# average_fitness_by_generation_figure = plt.figure()
+# highest_fitness_by_generation_figure = plt.figure()
+
+
+# Display highest fitness by generation
+
+# Display average fitness
+
+# Get best performaning bot
+
+# Display wins/losses
+
+# Display trades?
+
 # graph average fitness
 graph_average_fitness_by_generation(run_results)
+graph_highest_fitness_by_generation(run_results)
+
+plt.show()
