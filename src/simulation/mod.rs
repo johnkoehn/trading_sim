@@ -96,6 +96,28 @@ impl Simulation {
         Ok(simulation)
     }
 
+    pub fn web_create(path_to_price_history: &str, config: Config) -> Result<Simulation, Box<dyn Error>> {
+        let price_history_as_json = fs::read_to_string(path_to_price_history)?;
+
+        let price_data: Vec<PriceDataRaw> = serde_json::from_str(&price_history_as_json.as_str())?;
+        let price_history: Vec<PriceData> = price_data.iter().map(|x| PriceData::new(x)).collect();
+
+        config.validate_config()?;
+
+        let mut bots = Vec::<Bot>::new();
+        for id in 0..config.number_of_bots {
+            bots.push(Bot::new(&config, id));
+        }
+
+        let simulation = Simulation {
+            price_history: Arc::new(price_history),
+            config: Arc::new(config),
+            bots
+        };
+
+        Ok(simulation)
+    }
+
     pub fn run(&mut self, generation: u64) {
         if generation > self.config.number_of_generations {
             return;

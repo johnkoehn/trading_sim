@@ -29,6 +29,8 @@ module.exports = {
         'react/jsx-indent': [2, 4],
         'react/jsx-one-expression-per-line': [0],
         'react/jsx-indent-props': [2, 4],
+        'react/destructuring-assignment': [0],
+        'react/prop-types': [0],
         radix: 0
     }
 };
