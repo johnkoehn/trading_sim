@@ -1,0 +1,117 @@
+####
+# This is the form the rust simulation enginee will send to the UI for building the settings screen
+####
+Traits:
+  Label: "Traits"
+  Type: object
+  Fields:
+    NumberOfAveragingPeriods:
+      Label: "Number Of Averaging Periods"
+      Type: object
+      Fields:
+        Min:
+          Label: Min
+          Type: integer
+        Max:
+          Label: Max
+          Type: integer
+    MinimumBuyMomentum:
+      Label: "Minimum Buy Momentum"
+      Type: object
+      Fields:
+        Min:
+          Label: Min
+          Type: float
+        Max:
+          Label: Max
+          Type: float
+    MaximumBuyMomentum:
+      Label: "Maximum Buy Momentum"
+      Type: object
+      Fields:
+        Min:
+          Label: Min
+          Type: float
+        Max:
+          Label: Max
+          Type: float
+    TrailingStopLoss:
+      Label: "Trailing Stop Loss"
+      Type: object
+      Fields:
+        Min:
+          Label: Min
+          Type: float
+        Max:
+          Label: Max
+          Type: float
+    StopLoss:
+      Label: "Stop Loss"
+      Type: object
+      Fields:
+        Min:
+          Label: Min
+          Type: float
+        Max:
+          Label: Max
+          Type: float
+    TargetSellPercentage:
+      Label: "Target Sell Percentage"
+      Type: object
+      Fields:
+        Min:
+          Label: Min
+          Type: float
+        Max:
+          Label: Max
+          Type: float
+    MinimumHoldingPeriods:
+      Label: "Minimum Holding Periods"
+      Type: object
+      Fields:
+        Min:
+          Label: Min
+          Type: integer
+        Max:
+          Label: Max
+          Type: integer
+    MaximumHoldingPeriods:
+      Label: "Maximum Holding Periods"
+      Type: object
+      Fields:
+        Min:
+          Label: Min
+          Type: integer
+        Max:
+          Label: Max
+          Type: integer
+    PercentPurchase:
+      Type: object
+      Fields:
+        Min:
+          Label: Min
+          Type: integer
+        Max:
+          Label: Max
+          Type: integer
+NumberOfBots:
+  Label: "Number Of Bots"
+  Type: integer
+NumberOfGenerations:
+  Label: "Number Of Generations"
+  Type: integer
+StartingMoney:
+  Label: "Starting Money"
+  Type: float
+MinimumPurchaseSize:
+  Label: "Minimum Purchase Size"
+  Type: float
+TransactionFeeAsPercentage:
+  Label: "Transaction Fee as Percentage"
+  Type: float
+NumberOfThreads:
+  Label: "Number of Threads"
+  Type: integer
+MutationChance:
+  Label: "Mutation Chance"
+  Type: float

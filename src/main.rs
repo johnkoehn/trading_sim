@@ -13,6 +13,7 @@ use crate::simulation::Simulation;
 use std::thread;
 use std::fs;
 use serde::{Deserialize, Serialize};
+use actix_cors::Cors;
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -26,10 +27,21 @@ async fn health() -> impl Responder {
 }
 
 #[get("/configs/default")]
-async fn get_config() -> impl Responder {
+async fn get_default_config() -> impl Responder {
     let config_as_yaml = fs::read_to_string("./config/config.yaml").unwrap();
     let config: Config = serde_yaml::from_str(&config_as_yaml.as_str()).unwrap();
     let config_as_json = serde_json::to_string(&config).unwrap();
+
+    HttpResponse::Ok()
+        .content_type("application/json")
+        .body(&config_as_json)
+}
+
+#[get("/configs/form")]
+async fn get_config_form() -> impl Responder {
+    let config_form_as_yaml = fs::read_to_string("./config_form.yaml").unwrap();
+    let config_form: serde_yaml::Value = serde_yaml::from_str(&config_form_as_yaml.as_str()).unwrap();
+    let config_as_json = serde_json::to_string(&config_form).unwrap();
 
     HttpResponse::Ok()
         .content_type("application/json")
@@ -115,9 +127,13 @@ async fn get_generation(web::Path((simulation_id, generation_id)): web::Path<(St
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
+        let cors = Cors::permissive();
+
         App::new()
+            .wrap(cors)
             .service(health)
-            .service(get_config)
+            .service(get_default_config)
+            .service(get_config_form)
             .service(start_simulation)
             .service(list_simulations)
             .service(list_generations)
