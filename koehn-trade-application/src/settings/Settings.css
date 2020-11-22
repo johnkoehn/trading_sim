@@ -1,6 +1,6 @@
 form {
     display: grid;
-    grid-gap: 16px;
+    grid-gap: 4px;
     max-width: 600px;
     border: 1px solid #c1c1c1;
     margin: 2rem auto 0 auto;
@@ -31,6 +31,7 @@ label {
 input {
     padding: 0.7em;
     margin-bottom: 0.5rem;
+    width: 50px;
 }
 
 input:focus {
@@ -39,13 +40,34 @@ input:focus {
 
 @media (min-width: 400px) {
     form {
-        grid-template-columns: 300px 0.25fr;
-        grid-gap: 16px;
+        grid-template-columns: 200px 0.25fr;
+        grid-gap: 4px;
     }
 
     label {
       text-align: left;
       grid-column: 1 / 2;
+    }
+
+    h3 {
+        grid-column: 1 / 2;
+        text-align: left;
+    }
+
+    .level-1 {
+        text-indent: 1em
+    }
+
+    .level-2 {
+        text-indent: 2em;
+    }
+
+    .label-0 {
+        text-indent: 1em;
+    }
+
+    .label-1 {
+        text-indent: 2em;
     }
 
     input,

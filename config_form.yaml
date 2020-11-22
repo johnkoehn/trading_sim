@@ -86,6 +86,7 @@ Traits:
           Label: Max
           Type: integer
     PercentPurchase:
+      Label: "Percent Purchase"
       Type: object
       Fields:
         Min:
@@ -94,24 +95,28 @@ Traits:
         Max:
           Label: Max
           Type: integer
-NumberOfBots:
-  Label: "Number Of Bots"
-  Type: integer
-NumberOfGenerations:
-  Label: "Number Of Generations"
-  Type: integer
-StartingMoney:
-  Label: "Starting Money"
-  Type: float
-MinimumPurchaseSize:
-  Label: "Minimum Purchase Size"
-  Type: float
-TransactionFeeAsPercentage:
-  Label: "Transaction Fee as Percentage"
-  Type: float
-NumberOfThreads:
-  Label: "Number of Threads"
-  Type: integer
-MutationChance:
-  Label: "Mutation Chance"
-  Type: float
+General:
+  Label: "General"
+  Type: object
+  Fields:
+    NumberOfBots:
+      Label: "Number Of Bots"
+      Type: integer
+    NumberOfGenerations:
+      Label: "Number Of Generations"
+      Type: integer
+    StartingMoney:
+      Label: "Starting Money"
+      Type: float
+    MinimumPurchaseSize:
+      Label: "Minimum Purchase Size"
+      Type: float
+    TransactionFeeAsPercentage:
+      Label: "Transaction Fee as Percentage"
+      Type: float
+    NumberOfThreads:
+      Label: "Number of Threads"
+      Type: integer
+    MutationChance:
+      Label: "Mutation Chance"
+      Type: float

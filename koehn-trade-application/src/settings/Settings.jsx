@@ -10,9 +10,14 @@ const getInputType = (type) => {
     return 'text';
 };
 
-const mapConfigObject = (currentField, currentFieldName, html = []) => {
+const mapConfigObject = (currentField, currentFieldName, level = 0, html = []) => {
     // const fieldNames = Object.keys(currentField);
-    html.push((<h3>{currentField.Label}</h3>));
+
+    const heading = level === 0 ?
+        <h3>{currentField.Label}</h3> :
+        <label type="text" className={`level-${level}`} htmlFor={currentFieldName}>{currentField.Label}</label>;
+
+    html.push(heading);
 
     const fieldNames = Object.keys(currentField.Fields);
 
@@ -20,15 +25,14 @@ const mapConfigObject = (currentField, currentFieldName, html = []) => {
         const field = currentField.Fields[fieldName];
         const fieldType = field.Type;
         if (fieldType === 'object') {
-            mapConfigObject(field, fieldName, html);
+            mapConfigObject(field, fieldName, level + 1, html);
             return;
         }
 
         const label = field.Label;
-        console.log(field);
         html.push((
             <>
-                <label type="text" htmlFor={field}>{label}</label>
+                <label type="text" className={`label-${level}`} htmlFor={currentFieldName}>{label}</label>
                 <input type={getInputType(fieldType)} />
             </>
         ));
@@ -82,7 +86,7 @@ class Settings extends React.Component {
             const field = configForm[fieldName];
             const fieldType = field.Type;
             if (fieldType === 'object') {
-                const additionalHtml = mapConfigObject(field, fieldName);
+                const additionalHtml = mapConfigObject(field, fieldName, 0);
                 return accumulator.concat(additionalHtml);
             }
 
@@ -100,6 +104,7 @@ class Settings extends React.Component {
     render() {
         return (
             <form>
+                <h3>Simulation Settings</h3>
                 {this.buildSettings()}
             </form>
         );
