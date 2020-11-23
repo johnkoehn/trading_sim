@@ -10,9 +10,11 @@ Traits:
       Type: object
       Fields:
         Min:
+          Path: "Traits.NumberOfAveragingPeriods.Min"
           Label: Min
           Type: integer
         Max:
+          Path: "Traits.NumberOfAveragingPeriods.Max"
           Label: Max
           Type: integer
     MinimumBuyMomentum:
@@ -20,9 +22,11 @@ Traits:
       Type: object
       Fields:
         Min:
+          Path: "Traits.MinimumBuyMomentum.Min"
           Label: Min
           Type: float
         Max:
+          Path: "Traits.MinimumBuyMomentum.Max"
           Label: Max
           Type: float
     MaximumBuyMomentum:
@@ -30,9 +34,11 @@ Traits:
       Type: object
       Fields:
         Min:
+          Path: "Traits.MaximumBuyMomentum.Min"
           Label: Min
           Type: float
         Max:
+          Path: "Traits.MaximumBuyMomentum.Max"
           Label: Max
           Type: float
     TrailingStopLoss:
@@ -40,9 +46,11 @@ Traits:
       Type: object
       Fields:
         Min:
+          Path: "Traits.TrailingStopLoss.Min"
           Label: Min
           Type: float
         Max:
+          Path: "Traits.TrailingStopLoss.Max"
           Label: Max
           Type: float
     StopLoss:
@@ -50,9 +58,11 @@ Traits:
       Type: object
       Fields:
         Min:
+          Path: "Traits.StopLoss.Min"
           Label: Min
           Type: float
         Max:
+          Path: "Traits.StopLoss.Max"
           Label: Max
           Type: float
     TargetSellPercentage:
@@ -60,9 +70,11 @@ Traits:
       Type: object
       Fields:
         Min:
+          Path: "Traits.TargetSellPercentage.Min"
           Label: Min
           Type: float
         Max:
+          Path: "Traits.TargetSellPercentage.Max"
           Label: Max
           Type: float
     MinimumHoldingPeriods:
@@ -70,9 +82,11 @@ Traits:
       Type: object
       Fields:
         Min:
+          Path: "Traits.MinimumHoldingPeriods.Min"
           Label: Min
           Type: integer
         Max:
+          Path: "Traits.MinimumHoldingPeriods.Max"
           Label: Max
           Type: integer
     MaximumHoldingPeriods:
@@ -80,9 +94,11 @@ Traits:
       Type: object
       Fields:
         Min:
+          Path: "Traits.MaximumHoldingPeriods.Min"
           Label: Min
           Type: integer
         Max:
+          Path: "Traits.MaximumHoldingPeriods.Max"
           Label: Max
           Type: integer
     PercentPurchase:
@@ -90,9 +106,11 @@ Traits:
       Type: object
       Fields:
         Min:
+          Path: "Traits.PercentPurchase.Min"
           Label: Min
           Type: integer
         Max:
+          Path: "Traits.PercentPurchase.Max"
           Label: Max
           Type: integer
 General:
@@ -100,23 +118,30 @@ General:
   Type: object
   Fields:
     NumberOfBots:
+      Path: "NumberOfBots"
       Label: "Number Of Bots"
       Type: integer
     NumberOfGenerations:
+      Path: NumberOfGenerations
       Label: "Number Of Generations"
       Type: integer
     StartingMoney:
+      Path: StartingMoney
       Label: "Starting Money"
       Type: float
     MinimumPurchaseSize:
+      Path: MinimumPurchaseSize
       Label: "Minimum Purchase Size"
       Type: float
     TransactionFeeAsPercentage:
+      Path: TransactionFeeAsPercentage
       Label: "Transaction Fee as Percentage"
       Type: float
     NumberOfThreads:
+      Path: NumberOfThreads
       Label: "Number of Threads"
       Type: integer
     MutationChance:
+      Path: MutationChance
       Label: "Mutation Chance"
       Type: float

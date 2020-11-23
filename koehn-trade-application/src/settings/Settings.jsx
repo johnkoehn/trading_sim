@@ -1,5 +1,6 @@
 import React from 'react';
 import fetch from 'node-fetch';
+import objectPath from 'object-path';
 import './Settings.css';
 
 const getInputType = (type) => {
@@ -8,37 +9,6 @@ const getInputType = (type) => {
     }
 
     return 'text';
-};
-
-const mapConfigObject = (currentField, currentFieldName, level = 0, html = []) => {
-    // const fieldNames = Object.keys(currentField);
-
-    const heading = level === 0 ?
-        <h3>{currentField.Label}</h3> :
-        <label type="text" className={`level-${level}`} htmlFor={currentFieldName}>{currentField.Label}</label>;
-
-    html.push(heading);
-
-    const fieldNames = Object.keys(currentField.Fields);
-
-    fieldNames.forEach((fieldName) => {
-        const field = currentField.Fields[fieldName];
-        const fieldType = field.Type;
-        if (fieldType === 'object') {
-            mapConfigObject(field, fieldName, level + 1, html);
-            return;
-        }
-
-        const label = field.Label;
-        html.push((
-            <>
-                <label type="text" className={`label-${level}`} htmlFor={currentFieldName}>{label}</label>
-                <input type={getInputType(fieldType)} />
-            </>
-        ));
-    });
-
-    return html;
 };
 
 class Settings extends React.Component {
@@ -54,21 +24,61 @@ class Settings extends React.Component {
         // eslint-disable-next-line no-underscore-dangle
         this._isMounted = true;
 
-        const response = await fetch(`${process.env.REACT_APP_SIMULATION_HOST}/configs/form`);
+        const [defaultConfigResponse, configFormResponse] = await Promise.all([
+            fetch(`${process.env.REACT_APP_SIMULATION_HOST}/configs/default`),
+            fetch(`${process.env.REACT_APP_SIMULATION_HOST}/configs/form`)
+        ]);
 
-        if (!response.ok) {
+        if (!defaultConfigResponse.ok) {
             throw Error('Failed to get default settings!');
         }
 
-        const configForm = await response.json();
+        if (!configFormResponse.ok) {
+            throw Error('Failed to get config form');
+        }
+
+        const defaultConfig = await defaultConfigResponse.json();
+        const configForm = await configFormResponse.json();
         this.setState({
-            configForm
+            configForm,
+            config: defaultConfig
         });
     }
 
     componentWillUnmount() {
         // eslint-disable-next-line no-underscore-dangle
         this._isMounted = false;
+    }
+
+    mapConfigObject(currentField, currentFieldName, level = 0, html = []) {
+        const heading = level === 0 ?
+            <h3>{currentField.Label}</h3> :
+            <label type="text" className={`level-${level}`} htmlFor={currentFieldName}>{currentField.Label}</label>;
+
+        html.push(heading);
+
+        const fieldNames = Object.keys(currentField.Fields);
+
+        fieldNames.forEach((fieldName) => {
+            const field = currentField.Fields[fieldName];
+            const fieldType = field.Type;
+            if (fieldType === 'object') {
+                this.mapConfigObject(field, fieldName, level + 1, html);
+                return;
+            }
+
+            const label = field.Label;
+            const path = field.Path;
+            const value = objectPath.get(this.state.config, path);
+            html.push((
+                <>
+                    <label type="text" className={`label-${level}`} htmlFor={currentFieldName} path={path}>{label}</label>
+                    <input type={getInputType(fieldType)} path={path} onChange={this.onSettingChange.bind(this)} value={value} />
+                </>
+            ));
+        });
+
+        return html;
     }
 
     buildSettings() {
@@ -86,19 +96,35 @@ class Settings extends React.Component {
             const field = configForm[fieldName];
             const fieldType = field.Type;
             if (fieldType === 'object') {
-                const additionalHtml = mapConfigObject(field, fieldName, 0);
+                const additionalHtml = this.mapConfigObject(field, fieldName, 0);
                 return accumulator.concat(additionalHtml);
             }
 
+            // TODO: CLEAN THIS UP
             const label = field.Label;
+            const path = field.path;
+            const value = objectPath.get(this.state.config, path);
             accumulator.push((
                 <>
                     <label type="text" htmlFor={field}>{label}</label>
-                    <input type={getInputType(fieldType)} />
+                    <input type={getInputType(fieldType)} path={path} onChange={this.onSettingChange.bind(this)} value={value} />
                 </>
             ));
             return accumulator;
         }, []);
+    }
+
+    onSettingChange(event) {
+        const path = event.target.getAttribute('path');
+        const value = event.target.value;
+
+        this.setState((prevState) => {
+            const config = prevState.config;
+            objectPath.set(config, path, value);
+            return {
+                config
+            };
+        });
     }
 
     render() {
