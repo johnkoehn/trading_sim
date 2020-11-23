@@ -5,6 +5,7 @@ pub mod price_data;
 pub mod bot;
 pub mod config;
 use config::Config;
+use config::ConfigError;
 use regex::Regex;
 #[macro_use]
 extern crate serde_derive;
@@ -46,6 +47,23 @@ async fn get_config_form() -> impl Responder {
     HttpResponse::Ok()
         .content_type("application/json")
         .body(&config_as_json)
+}
+
+#[post("/configs/validate")]
+async fn validate_config(config: web::Json<Config>) -> impl Responder {
+    let validation_result = config.into_inner().validate_config();
+
+    if validation_result.is_some() {
+        // build bad response
+        let error: ConfigError = validation_result.unwrap();
+
+        return HttpResponse::BadRequest()
+            .content_type("application/json")
+            .body(serde_json::to_string(&error).unwrap());
+    }
+
+    return HttpResponse::Ok()
+        .body("")
 }
 
 #[post("/simulations")]
@@ -134,6 +152,7 @@ async fn main() -> std::io::Result<()> {
             .service(health)
             .service(get_default_config)
             .service(get_config_form)
+            .service(validate_config)
             .service(start_simulation)
             .service(list_simulations)
             .service(list_generations)
