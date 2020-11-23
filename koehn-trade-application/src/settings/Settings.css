@@ -26,6 +26,17 @@ form button:hover {
 
 label {
     padding: 0.5em 0.5em 0.5em 0;
+    text-align: left;
+}
+
+/* This is for labels that contain a possible Settings Error */
+.input-label {
+    grid-column: 1 / 2;
+}
+
+/* Ones without settings error */
+.display-label {
+    grid-column: 1 / 2;
 }
 
 input {
@@ -45,7 +56,6 @@ input:focus {
     }
 
     label {
-      text-align: left;
       grid-column: 1 / 2;
     }
 

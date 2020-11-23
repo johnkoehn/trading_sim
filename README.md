@@ -22,3 +22,9 @@ One of the long term goals of this project is to have the system configurable in
 While the genetic algorithm will provide the bots most fit for trading, the human user will need to use the results of the simulation to refine the system. An important aspect of the simulation system is for the user to be able to interact with a single bot and it's genes and modify the data set of various genes in ways to see changes in outcome.
 
 The program will do it's best to provide useful information to the user so they can make better decisions. the program should be thought of as a playground for human curiosity to discover interesting and unique trading systems.
+
+
+## The Pipeline
+
+We ultimately want a fast pipeline from testing to production. In order to do this, we need to be able to run simulations from the UI and then easily update our AWS account to create the new lambda, get it hooked up with a portfolio and
+start trading. In addition, we'd ideally want to be able to display a dashboard of the current trades being made with the bots across their different portfolios.

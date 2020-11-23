@@ -51,15 +51,13 @@ async fn get_config_form() -> impl Responder {
 
 #[post("/configs/validate")]
 async fn validate_config(config: web::Json<Config>) -> impl Responder {
-    let validation_result = config.into_inner().validate_config();
+    let config_errors = config.into_inner().validate_config();
 
-    if validation_result.is_some() {
+    if config_errors.len() > 0 {
         // build bad response
-        let error: ConfigError = validation_result.unwrap();
-
         return HttpResponse::BadRequest()
             .content_type("application/json")
-            .body(serde_json::to_string(&error).unwrap());
+            .body(serde_json::to_string(&config_errors).unwrap());
     }
 
     return HttpResponse::Ok()

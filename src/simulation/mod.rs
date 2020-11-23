@@ -80,7 +80,7 @@ impl Simulation {
         let price_history: Vec<PriceData> = price_data.iter().map(|x| PriceData::new(x)).collect();
 
         let config: Config = serde_yaml::from_str(&config_as_yaml.as_str())?;
-        if config.validate_config().is_some() {
+        if config.validate_config().len() > 0 {
             panic!("Config validation failed!")
         }
 
@@ -104,7 +104,7 @@ impl Simulation {
         let price_data: Vec<PriceDataRaw> = serde_json::from_str(&price_history_as_json.as_str())?;
         let price_history: Vec<PriceData> = price_data.iter().map(|x| PriceData::new(x)).collect();
 
-        if config.validate_config().is_some() {
+        if config.validate_config().len() > 0 {
             panic!("Config validation failed!")
         }
 

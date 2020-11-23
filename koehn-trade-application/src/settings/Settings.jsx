@@ -1,6 +1,7 @@
 import React from 'react';
 import fetch from 'node-fetch';
-import objectPath from 'object-path';
+import * as objectPath from 'object-path-immutable';
+import SettingsError from './SettingsError';
 import './Settings.css';
 
 const getInputType = (type) => {
@@ -11,12 +12,36 @@ const getInputType = (type) => {
     return 'text';
 };
 
+const validateConfig = async (path, value, currentConfig) => {
+    const updatedConfig = objectPath.set(currentConfig, path, value);
+    const response = await fetch(`${process.env.REACT_APP_SIMULATION_HOST}/configs/validate`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updatedConfig)
+    });
+
+    if (response.ok) {
+        return [];
+    }
+
+    if (response.status !== 400) {
+        throw new Error('Failed to validate config file');
+    }
+
+    return response.json();
+};
+
 class Settings extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            configForm: undefined
+            configForm: undefined,
+            config: undefined,
+            // eslint-disable-next-line react/no-unused-state
+            validationErrors: []
         };
     }
 
@@ -73,6 +98,7 @@ class Settings extends React.Component {
             html.push((
                 <>
                     <label type="text" className={`label-${level}`} htmlFor={currentFieldName} path={path}>{label}</label>
+                    <SettingsError errors={this.state.validationErrors} path={path} />
                     <input type={getInputType(fieldType)} path={path} onChange={this.onSettingChange.bind(this)} value={value} />
                 </>
             ));
@@ -114,15 +140,19 @@ class Settings extends React.Component {
         }, []);
     }
 
-    onSettingChange(event) {
+    async onSettingChange(event) {
         const path = event.target.getAttribute('path');
-        const value = event.target.value;
+        const type = event.target.getAttribute('type');
+        const value = type === 'number' ? parseInt(event.target.value) : event.target.value;
+
+        const validationErrors = await validateConfig(path, value, this.state.config);
 
         this.setState((prevState) => {
-            const config = prevState.config;
-            objectPath.set(config, path, value);
+            const currentConfig = prevState.config;
+            const updatedConfig = objectPath.set(currentConfig, path, value);
             return {
-                config
+                config: updatedConfig,
+                validationErrors
             };
         });
     }

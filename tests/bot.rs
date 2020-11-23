@@ -78,7 +78,7 @@ mod bot_assets {
     fn generate_default_config () -> Arc<Config> {
         let config_as_yaml = fs::read_to_string("./tests/test_data/example_config.yaml").unwrap();
         let config: Config = serde_yaml::from_str(&config_as_yaml.as_str()).unwrap();
-        config.validate_config().unwrap();
+        config.validate_config();
 
         Arc::new(config)
     }
