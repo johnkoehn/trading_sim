@@ -149,16 +149,34 @@ class Settings extends React.Component {
         return settingsHtml;
     }
 
+    // TODO: Rewrite to not validate on each change
     async onSettingChange(event) {
+        const getValue = (type, fieldType) => {
+            const value = event.target.value;
+
+            if (type === 'number') {
+                if (value === '') {
+                    return 0;
+                }
+
+                return fieldType === 'float' ?
+                    parseFloat(event.target.value) :
+                    parseInt(event.target.value);
+            }
+
+            return value;
+        };
+
         const path = event.target.getAttribute('path');
         const type = event.target.getAttribute('type');
-        const value = type === 'number' ? parseInt(event.target.value) : event.target.value;
+        const fieldType = event.target.getAttribute('fieldtype');
+
+        const value = getValue(type, fieldType);
 
         if (Number.isNaN(value)) {
             return;
         }
 
-        const fieldType = event.target.getAttribute('fieldtype');
         if (fieldType === 'unsigned_integer' && value < 0) {
             return;
         }

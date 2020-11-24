@@ -19,8 +19,6 @@ class App extends React.Component {
         });
     }
 
-    // TODO: IN SETTINGS -- HANDLE UNDEFINED
-
     render() {
         console.log(this.state.config);
         console.log(this.state.validationErrors);
