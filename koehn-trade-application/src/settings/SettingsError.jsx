@@ -1,4 +1,5 @@
 import React from 'react';
+import './SettingsError.css';
 
 function SettingsError(props) {
     const errors = props.errors.filter((error) => error.path === props.path);

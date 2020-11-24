@@ -12,11 +12,11 @@ Traits:
         Min:
           Path: "Traits.NumberOfAveragingPeriods.Min"
           Label: Min
-          Type: integer
+          Type: unsigned_integer
         Max:
           Path: "Traits.NumberOfAveragingPeriods.Max"
           Label: Max
-          Type: integer
+          Type: unsigned_integer
     MinimumBuyMomentum:
       Label: "Minimum Buy Momentum"
       Type: object
@@ -84,11 +84,11 @@ Traits:
         Min:
           Path: "Traits.MinimumHoldingPeriods.Min"
           Label: Min
-          Type: integer
+          Type: unsigned_integer
         Max:
           Path: "Traits.MinimumHoldingPeriods.Max"
           Label: Max
-          Type: integer
+          Type: unsigned_integer
     MaximumHoldingPeriods:
       Label: "Maximum Holding Periods"
       Type: object
@@ -96,11 +96,11 @@ Traits:
         Min:
           Path: "Traits.MaximumHoldingPeriods.Min"
           Label: Min
-          Type: integer
+          Type: unsigned_integer
         Max:
           Path: "Traits.MaximumHoldingPeriods.Max"
           Label: Max
-          Type: integer
+          Type: unsigned_integer
     PercentPurchase:
       Label: "Percent Purchase"
       Type: object
@@ -108,11 +108,11 @@ Traits:
         Min:
           Path: "Traits.PercentPurchase.Min"
           Label: Min
-          Type: integer
+          Type: unsigned_integer
         Max:
           Path: "Traits.PercentPurchase.Max"
           Label: Max
-          Type: integer
+          Type: unsigned_integer
 General:
   Label: "General"
   Type: object
@@ -120,11 +120,11 @@ General:
     NumberOfBots:
       Path: "NumberOfBots"
       Label: "Number Of Bots"
-      Type: integer
+      Type: unsigned_integer
     NumberOfGenerations:
       Path: NumberOfGenerations
       Label: "Number Of Generations"
-      Type: integer
+      Type: unsigned_integer
     StartingMoney:
       Path: StartingMoney
       Label: "Starting Money"
@@ -140,7 +140,7 @@ General:
     NumberOfThreads:
       Path: NumberOfThreads
       Label: "Number of Threads"
-      Type: integer
+      Type: unsigned_integer
     MutationChance:
       Path: MutationChance
       Label: "Mutation Chance"

@@ -5,7 +5,7 @@ import SettingsError from './SettingsError';
 import './Settings.css';
 
 const getInputType = (type) => {
-    if (type === 'float' || type === 'integer') {
+    if (type === 'float' || type === 'integer' || type === 'unsigned_integer') {
         return 'number';
     }
 
@@ -30,7 +30,13 @@ const validateConfig = async (path, value, currentConfig) => {
         throw new Error('Failed to validate config file');
     }
 
-    return response.json();
+    try {
+        const body = await response.json();
+        return body;
+    } catch (err) {
+        console.log(err);
+        throw new Error('Failed to validate config file');
+    }
 };
 
 class Settings extends React.Component {
@@ -40,7 +46,6 @@ class Settings extends React.Component {
         this.state = {
             configForm: undefined,
             config: undefined,
-            // eslint-disable-next-line react/no-unused-state
             validationErrors: []
         };
     }
@@ -77,7 +82,7 @@ class Settings extends React.Component {
 
     mapConfigObject(currentField, currentFieldName, level = 0, html = []) {
         const heading = level === 0 ?
-            <h3>{currentField.Label}</h3> :
+            <h3 key={currentField.Label}>{currentField.Label}</h3> :
             <label type="text" className={`level-${level}`} htmlFor={currentFieldName}>{currentField.Label}</label>;
 
         html.push(heading);
@@ -95,11 +100,12 @@ class Settings extends React.Component {
             const label = field.Label;
             const path = field.Path;
             const value = objectPath.get(this.state.config, path);
+
             html.push((
                 <>
                     <label type="text" className={`label-${level}`} htmlFor={currentFieldName} path={path}>{label}</label>
-                    <SettingsError errors={this.state.validationErrors} path={path} />
-                    <input type={getInputType(fieldType)} path={path} onChange={this.onSettingChange.bind(this)} value={value} />
+                    <input type={getInputType(fieldType)} path={path} onChange={this.onSettingChange.bind(this)} value={value} fieldType={fieldType} />
+                    <SettingsError errors={this.state.validationErrors} path={path} className=".error" />
                 </>
             ));
         });
@@ -144,6 +150,15 @@ class Settings extends React.Component {
         const path = event.target.getAttribute('path');
         const type = event.target.getAttribute('type');
         const value = type === 'number' ? parseInt(event.target.value) : event.target.value;
+
+        if (Number.isNaN(value)) {
+            return;
+        }
+
+        const fieldType = event.target.getAttribute('fieldType');
+        if (fieldType === 'unsigned_integer' && value < 0) {
+            return;
+        }
 
         const validationErrors = await validateConfig(path, value, this.state.config);
 

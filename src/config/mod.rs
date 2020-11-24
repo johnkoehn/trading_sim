@@ -40,76 +40,76 @@ impl Config {
         let mut config_errors = Vec::<ConfigError>::new();
 
         if self.traits.number_of_averaging_periods.max < self.traits.number_of_averaging_periods.min {
-            config_errors.push(ConfigError::new("Traits.NumberOfAveragingPeriods.Max cannot be less then Traits.NumberOfAveragingPeriods.Min".to_string(), "Traits.NumberOfAveragingPeriods.Max".to_string()));
+            config_errors.push(ConfigError::new("Max cannot be less then Min".to_string(), "Traits.NumberOfAveragingPeriods.Max".to_string()));
         }
 
         if self.traits.minimum_buy_momentum.max < self.traits.minimum_buy_momentum.min {
-            config_errors.push(ConfigError::new("Traits.MinimumBuyMomentum.Max cannot be less then Traits.MinimumBuyMomentum.Min".to_string(), "Traits.MinimumBuyMomentum.Max".to_string()));
+            config_errors.push(ConfigError::new("Max cannot be less then Min".to_string(), "Traits.MinimumBuyMomentum.Max".to_string()));
         }
 
         if self.traits.maximum_buy_momentum.max < self.traits.maximum_buy_momentum.min {
-            config_errors.push(ConfigError::new("Traits.MaximumBuyMomentum.Max cannot be less then Traits.MaximumBuyMomentum.Min".to_string(), "Traits.MaximumBuyMomentum.Max".to_string()));
+            config_errors.push(ConfigError::new("Max cannot be less then Min".to_string(), "Traits.MaximumBuyMomentum.Max".to_string()));
         }
 
         if self.traits.trailing_stop_loss.max < self.traits.trailing_stop_loss.min {
-            config_errors.push(ConfigError::new("Traits.TrailingStopLoss.Max cannot be less then Traits.TrailingStopLoss.Min".to_string(), "Traits.TrailingStopLoss.Max".to_string()));
+            config_errors.push(ConfigError::new("Max cannot be less then Min".to_string(), "Traits.TrailingStopLoss.Max".to_string()));
         }
 
         // max will never be less then 0.0 because max cannot be less then min
         if self.traits.trailing_stop_loss.min < 0.0 {
-            config_errors.push(ConfigError::new("Traits.TrailingStopLoss.Min cannot be less then 0".to_string(), "Traits.TrailingStopLoss.Min".to_string()));
+            config_errors.push(ConfigError::new("Min cannot be less then 0".to_string(), "Traits.TrailingStopLoss.Min".to_string()));
         }
 
         if self.traits.stop_loss.max < self.traits.stop_loss.min {
-            config_errors.push(ConfigError::new("Traits.StopLoss.Max cannot be less then Traits.StopLoss.Min".to_string(), "Traits.StopLoss.Max".to_string()));
+            config_errors.push(ConfigError::new("Max cannot be less then Min".to_string(), "Traits.StopLoss.Max".to_string()));
         }
 
         if self.traits.stop_loss.min < 0.0 {
-            config_errors.push(ConfigError::new("Traits.StopLoss.Min cannot be less then 0".to_string(), "Traits.StopLoss.Min".to_string()));
+            config_errors.push(ConfigError::new("Min cannot be less then 0".to_string(), "Traits.StopLoss.Min".to_string()));
         }
 
         if self.traits.minimum_holding_periods.max < self.traits.minimum_holding_periods.min {
-            config_errors.push(ConfigError::new("Traits.MinimumHoldingPeriods.Max cannot be less then Traits.MinimumHoldingPeriods.Min".to_string(), "Traits.MinimumHoldingPeriods.Max".to_string()));
+            config_errors.push(ConfigError::new("Max cannot be less then Min".to_string(), "Traits.MinimumHoldingPeriods.Max".to_string()));
         }
 
         if self.traits.maximum_holding_periods.max < self.traits.maximum_holding_periods.min {
-            config_errors.push(ConfigError::new("Traits.MaximumHoldingPeriods.Max cannot be less then Traits.MaximumHoldingPeriods.Min".to_string(), "Traits.MaximumHoldingPeriods.Max".to_string()));
+            config_errors.push(ConfigError::new("Max cannot be less then Min".to_string(), "Traits.MaximumHoldingPeriods.Max".to_string()));
         }
 
         if self.traits.percent_purchase.max < self.traits.percent_purchase.min {
-            config_errors.push(ConfigError::new("Traits.PercentPurchase.Max cannot be less then Traits.PercentPurchase.Min".to_string(), "Traits.PercentPurchase.Max".to_string()));
+            config_errors.push(ConfigError::new("Max cannot be less then Min".to_string(), "Traits.PercentPurchase.Max".to_string()));
         }
 
         if self.traits.percent_purchase.min < 0.0 {
-            config_errors.push(ConfigError::new("Traits.PercentPurchase.Min cannot be less then 0".to_string(), "Traits.PercentPurchase.Min".to_string()));
+            config_errors.push(ConfigError::new("Min cannot be less then 0".to_string(), "Traits.PercentPurchase.Min".to_string()));
         }
 
         if self.traits.percent_purchase.max > 100.0 {
-            config_errors.push(ConfigError::new("Traits.PercentPurchase.Max cannot be greater then 100".to_string(), "Traits.PercentPurchase.Max".to_string()));
+            config_errors.push(ConfigError::new("Max cannot be greater then 100".to_string(), "Traits.PercentPurchase.Max".to_string()));
         }
 
         if self.minimum_purchase_size < 0.0 {
-            config_errors.push(ConfigError::new("MinimumPurchaseSize cannot be less then 0".to_string(), "MinimumPurchaseSize".to_string()));
+            config_errors.push(ConfigError::new("Minimum Purchase Size cannot be less then 0".to_string(), "MinimumPurchaseSize".to_string()));
         }
 
         if self.starting_money < 0.0 {
-            config_errors.push(ConfigError::new("StartingMoney cannot be less then 0".to_string(), "StartingMoney".to_string()));
+            config_errors.push(ConfigError::new("Starting Money cannot be less then 0".to_string(), "StartingMoney".to_string()));
         }
 
         if self.transaction_fee_as_percentage > 1.0 || self.transaction_fee_as_percentage < 0.0 {
-            config_errors.push(ConfigError::new("TransactionFeeAsPercentage can only be from 0 to 1".to_string(), "TransactionFeeAsPercentage".to_string()));
+            config_errors.push(ConfigError::new("Transaction Fee As Percentage can only be from 0 to 1".to_string(), "TransactionFeeAsPercentage".to_string()));
         }
 
         if self.traits.target_sell_percentage.min <= 0.0 {
-            config_errors.push(ConfigError::new("Traits.TargetedSellPrice.Min must be greater then 0".to_string(), "Traits.TargetedSellPrice.Min".to_string()));
+            config_errors.push(ConfigError::new("Min must be greater then 0".to_string(), "Traits.TargetedSellPrice.Min".to_string()));
         }
 
         if self.traits.target_sell_percentage.min > self.traits.target_sell_percentage.max {
-            config_errors.push(ConfigError::new("Traits.TargetSellPercentage.Min must be less then Traits.TargetSellPercentage.Max".to_string(), "Traits.TargetSellPercentage.Min".to_string()));
+            config_errors.push(ConfigError::new("Min must be less then Max".to_string(), "Traits.TargetSellPercentage.Min".to_string()));
         }
 
         if self.mutation_chance < 0.0 || self.mutation_chance > 1.0 {
-            config_errors.push(ConfigError::new("MutationChance must be between 0 and 1".to_string(), "MutationChance".to_string()));
+            config_errors.push(ConfigError::new("Mutation Chance must be between 0 and 1".to_string(), "MutationChance".to_string()));
         }
 
         return config_errors;

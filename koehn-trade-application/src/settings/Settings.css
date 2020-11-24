@@ -51,7 +51,7 @@ input:focus {
 
 @media (min-width: 400px) {
     form {
-        grid-template-columns: 200px 0.25fr;
+        grid-template-columns: 200px 0.25fr auto;
         grid-gap: 4px;
     }
 
@@ -78,6 +78,10 @@ input:focus {
 
     .label-1 {
         text-indent: 2em;
+    }
+
+    .error {
+        grid-column: 3;
     }
 
     input,
