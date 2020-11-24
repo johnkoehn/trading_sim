@@ -83,7 +83,7 @@ class Settings extends React.Component {
     mapConfigObject(currentField, currentFieldName, level = 0, html = []) {
         const heading = level === 0 ?
             <h3 key={currentField.Label}>{currentField.Label}</h3> :
-            <label type="text" className={`level-${level}`} htmlFor={currentFieldName}>{currentField.Label}</label>;
+            <label key={`label-${currentFieldName}`} type="text" className={`level-${level}`} htmlFor={currentFieldName}>{currentField.Label}</label>;
 
         html.push(heading);
 
@@ -103,8 +103,8 @@ class Settings extends React.Component {
 
             html.push((
                 <>
-                    <label type="text" className={`label-${level}`} htmlFor={currentFieldName} path={path}>{label}</label>
-                    <input type={getInputType(fieldType)} path={path} onChange={this.onSettingChange.bind(this)} value={value} fieldType={fieldType} />
+                    <label key={`label-${path}`} type="text" className={`label-${level}`} htmlFor={currentFieldName} path={path}>{label}</label>
+                    <input key={path} type={getInputType(fieldType)} path={path} onChange={this.onSettingChange.bind(this)} value={value} fieldtype={fieldType} />
                     <SettingsError errors={this.state.validationErrors} path={path} className=".error" />
                 </>
             ));
@@ -124,7 +124,7 @@ class Settings extends React.Component {
 
         const configForm = this.state.configForm;
         const fieldNames = Object.keys(configForm);
-        return fieldNames.reduce((accumulator, fieldName) => {
+        const settingsHtml = fieldNames.reduce((accumulator, fieldName) => {
             const field = configForm[fieldName];
             const fieldType = field.Type;
             if (fieldType === 'object') {
@@ -144,6 +144,9 @@ class Settings extends React.Component {
             ));
             return accumulator;
         }, []);
+
+        // settingsHtml.push((<button type="button" onClick={() => this.props.runSimulation(this.state.config)}>Run Simulation</button>));
+        return settingsHtml;
     }
 
     async onSettingChange(event) {
@@ -155,7 +158,7 @@ class Settings extends React.Component {
             return;
         }
 
-        const fieldType = event.target.getAttribute('fieldType');
+        const fieldType = event.target.getAttribute('fieldtype');
         if (fieldType === 'unsigned_integer' && value < 0) {
             return;
         }
@@ -165,6 +168,9 @@ class Settings extends React.Component {
         this.setState((prevState) => {
             const currentConfig = prevState.config;
             const updatedConfig = objectPath.set(currentConfig, path, value);
+
+            this.props.onConfigChange(updatedConfig, validationErrors);
+
             return {
                 config: updatedConfig,
                 validationErrors
@@ -174,7 +180,7 @@ class Settings extends React.Component {
 
     render() {
         return (
-            <form>
+            <form key="settings">
                 <h3>Simulation Settings</h3>
                 {this.buildSettings()}
             </form>
