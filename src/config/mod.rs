@@ -40,7 +40,7 @@ impl Config {
         let mut config_errors = Vec::<ConfigError>::new();
 
         if self.traits.number_of_averaging_periods.max < self.traits.number_of_averaging_periods.min {
-            config_errors.push(ConfigError::new("Traits.NumberOfAveragingPeriod.Max cannot be less then Traits.NumberOfAveragingPeriod.Min".to_string(), "Traits.NumberOfAveragingPeriod.Max".to_string()));
+            config_errors.push(ConfigError::new("Traits.NumberOfAveragingPeriods.Max cannot be less then Traits.NumberOfAveragingPeriods.Min".to_string(), "Traits.NumberOfAveragingPeriods.Max".to_string()));
         }
 
         if self.traits.minimum_buy_momentum.max < self.traits.minimum_buy_momentum.min {
