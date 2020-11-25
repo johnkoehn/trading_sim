@@ -40,6 +40,23 @@ const validateConfig = async (path, value, currentConfig) => {
     }
 };
 
+const getConfigOptions = async () => {
+    const listConfigsResponse = await fetch(`${process.env.REACT_APP_SIMULATION_HOST}/configs`);
+
+    if (!listConfigsResponse.ok) {
+        throw Error('Failed to get list of configs');
+    }
+
+    const configNames = await listConfigsResponse.json();
+
+    return configNames.map((configName) => {
+        return {
+            value: configName,
+            label: configName.replaceAll('_', '')
+        };
+    });
+};
+
 class Settings extends React.Component {
     constructor(props) {
         super(props);
@@ -49,6 +66,7 @@ class Settings extends React.Component {
             config: undefined,
             configOptions: [],
             selectedConfigOption: undefined,
+            configName: undefined,
             validationErrors: []
         };
     }
@@ -57,10 +75,10 @@ class Settings extends React.Component {
         // eslint-disable-next-line no-underscore-dangle
         this._isMounted = true;
 
-        const [defaultConfigResponse, configFormResponse, listConfigsResponse] = await Promise.all([
+        const [defaultConfigResponse, configFormResponse, configOptions] = await Promise.all([
             fetch(`${process.env.REACT_APP_SIMULATION_HOST}/configs/default`),
             fetch(`${process.env.REACT_APP_SIMULATION_HOST}/configs/form`),
-            fetch(`${process.env.REACT_APP_SIMULATION_HOST}/configs`)
+            getConfigOptions()
         ]);
 
         if (!defaultConfigResponse.ok) {
@@ -71,20 +89,8 @@ class Settings extends React.Component {
             throw Error('Failed to get config form');
         }
 
-        if (!listConfigsResponse.ok) {
-            throw Error('Failed to get list of configs');
-        }
-
         const defaultConfig = await defaultConfigResponse.json();
         const configForm = await configFormResponse.json();
-        const configNames = await listConfigsResponse.json();
-
-        const configOptions = configNames.map((configName) => {
-            return {
-                value: configName,
-                label: configName.replaceAll('_', '')
-            };
-        });
 
         const selectedConfigOption = configOptions.find((option) => option.value === 'default');
 
@@ -92,7 +98,8 @@ class Settings extends React.Component {
             configForm,
             config: defaultConfig,
             configOptions,
-            selectedConfigOption
+            selectedConfigOption,
+            configName: selectedConfigOption.label
         });
     }
 
@@ -219,7 +226,45 @@ class Settings extends React.Component {
         const config = await getConfigResponse.json();
         this.setState({
             selectedConfigOption: selectedOption,
-            config
+            config,
+            configName: selectedOption.label
+        });
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    async saveConfig() {
+        // turn spaces to underscores
+        const configName = this.state.configName;
+        const configNameNoSpaces = configName.replaceAll(' ', '_');
+        const config = this.state.config;
+
+        // make put request
+        const saveConfigResponse = await fetch(`${process.env.REACT_APP_SIMULATION_HOST}/configs/${configNameNoSpaces}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(config)
+        });
+
+        if (!saveConfigResponse.ok) {
+            console.log(saveConfigResponse.status);
+            throw new Error('Failed to save config');
+        }
+
+        const configOptions = await getConfigOptions();
+        const selectedConfigOption = configOptions.find((option) => option.value === configNameNoSpaces);
+        this.setState({
+            configOptions,
+            selectedConfigOption
+        });
+    }
+
+    updateConfigName(event) {
+        const value = event.target.value;
+
+        this.setState({
+            configName: value
         });
     }
 
@@ -227,8 +272,20 @@ class Settings extends React.Component {
         return (<Select options={this.state.configOptions} value={this.state.selectedConfigOption} onChange={(event) => this.handleConfigChange(event)} />);
     }
 
+    buildSaveConfig() {
+        return (
+            <>
+                <label htmlFor="configName" type="text">
+                    Config Name:&emsp;
+                    <input type="text" id="configName" value={this.state.configName} onChange={this.updateConfigName.bind(this)} />
+                </label>
+                <button type="button" onClick={this.saveConfig.bind(this)}>Save Config</button>
+            </>
+        );
+    }
+
     render() {
-        // settingsHtml.push((<button type="button" onClick={() => this.props.runSimulation(this.state.config)}>Run Simulation</button>));
+        // settingsHtml.push(());
         if (!this.state.configForm) {
             return (
                 <div>
@@ -242,6 +299,7 @@ class Settings extends React.Component {
                 <h3>Simulation Settings</h3>
                 {this.buildConfigSelection()}
                 {this.buildSettings()}
+                {this.buildSaveConfig()}
             </form>
         );
     }
