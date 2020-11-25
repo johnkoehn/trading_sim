@@ -5,7 +5,6 @@ pub mod price_data;
 pub mod bot;
 pub mod config;
 use config::Config;
-use config::ConfigError;
 use regex::Regex;
 #[macro_use]
 extern crate serde_derive;
@@ -96,7 +95,6 @@ async fn validate_config(config: web::Json<Config>) -> impl Responder {
     let config_errors = config.into_inner().validate_config();
 
     if config_errors.len() > 0 {
-        // build bad response
         return HttpResponse::BadRequest()
             .content_type("application/json")
             .body(serde_json::to_string(&config_errors).unwrap());
@@ -124,7 +122,6 @@ async fn start_simulation(config: web::Json<Config>) -> impl Responder {
 
 #[get("/simulations")]
 async fn list_simulations() -> impl Responder {
-    // read in simulations directory
     let entries = fs::read_dir("./simulations").unwrap();
 
     let mut ids = Vec::<String>::new();
@@ -147,7 +144,6 @@ async fn list_simulations() -> impl Responder {
 
 #[get("/simulations/{simulation_id}/generations")]
 async fn list_generations(web::Path(simulation_id): web::Path<(String)>) -> impl Responder {
-    // read in simulations directory
     let directory = "./simulations/".to_owned() + simulation_id.as_str();
     let entries = fs::read_dir(&directory).unwrap();
 
@@ -173,7 +169,6 @@ async fn list_generations(web::Path(simulation_id): web::Path<(String)>) -> impl
 
 #[get("/simulations/{simulation_id}/generations/{generation_id}")]
 async fn get_generation(web::Path((simulation_id, generation_id)): web::Path<(String, String)>) -> impl Responder {
-    // read in simulations directory
     let generation_path = "./simulations/".to_owned() + simulation_id.as_str() + "/" + generation_id.as_str();
     let generation = fs::read_to_string(generation_path).unwrap();
 

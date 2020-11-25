@@ -1,4 +1,5 @@
 import React from 'react';
+import Select from 'react-select';
 import fetch from 'node-fetch';
 import * as objectPath from 'object-path-immutable';
 import SettingsError from './SettingsError';
@@ -46,6 +47,8 @@ class Settings extends React.Component {
         this.state = {
             configForm: undefined,
             config: undefined,
+            configOptions: [],
+            selectedConfigOption: undefined,
             validationErrors: []
         };
     }
@@ -54,9 +57,10 @@ class Settings extends React.Component {
         // eslint-disable-next-line no-underscore-dangle
         this._isMounted = true;
 
-        const [defaultConfigResponse, configFormResponse] = await Promise.all([
+        const [defaultConfigResponse, configFormResponse, listConfigsResponse] = await Promise.all([
             fetch(`${process.env.REACT_APP_SIMULATION_HOST}/configs/default`),
-            fetch(`${process.env.REACT_APP_SIMULATION_HOST}/configs/form`)
+            fetch(`${process.env.REACT_APP_SIMULATION_HOST}/configs/form`),
+            fetch(`${process.env.REACT_APP_SIMULATION_HOST}/configs`)
         ]);
 
         if (!defaultConfigResponse.ok) {
@@ -67,11 +71,28 @@ class Settings extends React.Component {
             throw Error('Failed to get config form');
         }
 
+        if (!listConfigsResponse.ok) {
+            throw Error('Failed to get list of configs');
+        }
+
         const defaultConfig = await defaultConfigResponse.json();
         const configForm = await configFormResponse.json();
+        const configNames = await listConfigsResponse.json();
+
+        const configOptions = configNames.map((configName) => {
+            return {
+                value: configName,
+                label: configName.replaceAll('_', '')
+            };
+        });
+
+        const selectedConfigOption = configOptions.find((option) => option.value === 'default');
+
         this.setState({
             configForm,
-            config: defaultConfig
+            config: defaultConfig,
+            configOptions,
+            selectedConfigOption
         });
     }
 
@@ -114,14 +135,6 @@ class Settings extends React.Component {
     }
 
     buildSettings() {
-        if (!this.state.configForm) {
-            return (
-                <div>
-                    <p>Fetching settings</p>
-                </div>
-            );
-        }
-
         const configForm = this.state.configForm;
         const fieldNames = Object.keys(configForm);
         const settingsHtml = fieldNames.reduce((accumulator, fieldName) => {
@@ -145,7 +158,6 @@ class Settings extends React.Component {
             return accumulator;
         }, []);
 
-        // settingsHtml.push((<button type="button" onClick={() => this.props.runSimulation(this.state.config)}>Run Simulation</button>));
         return settingsHtml;
     }
 
@@ -196,10 +208,39 @@ class Settings extends React.Component {
         });
     }
 
+    async handleConfigChange(selectedOption) {
+        const configName = selectedOption.value;
+        const getConfigResponse = await fetch(`${process.env.REACT_APP_SIMULATION_HOST}/configs/${configName}`);
+
+        if (!getConfigResponse.ok) {
+            throw new Error(`Failed to get config ${configName}`);
+        }
+
+        const config = await getConfigResponse.json();
+        this.setState({
+            selectedConfigOption: selectedOption,
+            config
+        });
+    }
+
+    buildConfigSelection() {
+        return (<Select options={this.state.configOptions} value={this.state.selectedConfigOption} onChange={(event) => this.handleConfigChange(event)} />);
+    }
+
     render() {
+        // settingsHtml.push((<button type="button" onClick={() => this.props.runSimulation(this.state.config)}>Run Simulation</button>));
+        if (!this.state.configForm) {
+            return (
+                <div>
+                    <p>Fetching settings</p>
+                </div>
+            );
+        }
+
         return (
             <form key="settings">
                 <h3>Simulation Settings</h3>
+                {this.buildConfigSelection()}
                 {this.buildSettings()}
             </form>
         );

@@ -2,3 +2,4 @@
 * Gather simulation results
 * Save configs with name -- don't allow form
 * Run single bot
+* add hamming -- see https://github.com/johnkoehn/RoboStock/blob/master/RoboStock/src/robo/Reproduction.java
