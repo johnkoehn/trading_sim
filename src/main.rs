@@ -15,7 +15,7 @@ use std::thread;
 use std::fs;
 use serde::{Deserialize, Serialize};
 use actix_cors::Cors;
-use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{get, post, put, web, App, HttpResponse, HttpServer, Responder};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct SimulationResponse {
@@ -27,15 +27,57 @@ async fn health() -> impl Responder {
     HttpResponse::Ok().body("Healthy")
 }
 
-#[get("/configs/default")]
-async fn get_default_config() -> impl Responder {
-    let config_as_yaml = fs::read_to_string("./config/config.yaml").unwrap();
+#[get("/configs/{config_name}")]
+async fn get_config(web::Path(config_name): web::Path<(String)>) -> impl Responder {
+    let file_path = "./configs/".to_owned() + config_name.as_str() + ".yaml";
+
+    let config_as_yaml_result = fs::read_to_string(file_path);
+    if config_as_yaml_result.is_err() {
+        return HttpResponse::NotFound()
+            .body("")
+    }
+
+    let config_as_yaml = config_as_yaml_result.unwrap();
     let config: Config = serde_yaml::from_str(&config_as_yaml.as_str()).unwrap();
     let config_as_json = serde_json::to_string(&config).unwrap();
 
     HttpResponse::Ok()
         .content_type("application/json")
         .body(&config_as_json)
+}
+
+#[get("/configs")]
+async fn list_configs() -> impl Responder {
+    let entries = fs::read_dir("./configs").unwrap();
+
+    let mut config_names = Vec::<String>::new();
+    for entry in entries {
+        let directory_buffer = entry.unwrap().path();
+        let file_path = directory_buffer.to_str().unwrap();
+
+        let directory_regex = Regex::new("./configs\\\\(.*).yaml").unwrap();
+        let captures = directory_regex.captures(file_path).unwrap();
+        let config_name = &captures[1];
+
+        config_names.push(String::from(config_name));
+    }
+
+    HttpResponse::Ok()
+        .content_type("application/json")
+        .body(serde_json::to_string(&config_names).unwrap())
+}
+
+#[put("/configs/{config_name}")]
+async fn create_or_update_config(config_web_request: web::Json<Config>, web::Path(config_name): web::Path<(String)>) -> impl Responder {
+    let config = config_web_request.into_inner();
+    let file_path = "./configs/".to_owned() + config_name.as_str() + ".yaml";
+
+    let config_as_yaml = serde_yaml::to_string(&config).unwrap();
+    fs::write(file_path, config_as_yaml).unwrap();
+
+    HttpResponse::Ok()
+        .content_type("application/json")
+        .body(serde_json::to_string(&config).unwrap())
 }
 
 #[get("/configs/form")]
@@ -88,10 +130,10 @@ async fn list_simulations() -> impl Responder {
     let mut ids = Vec::<String>::new();
     for entry in entries {
         let directory_buffer = entry.unwrap().path();
-        let directort_as_str = directory_buffer.to_str().unwrap();
+        let directory_as_str = directory_buffer.to_str().unwrap();
 
         let directory_regex = Regex::new("./simulations\\\\").unwrap();
-        let sim_id_result = directory_regex.replace_all(directort_as_str, "");
+        let sim_id_result = directory_regex.replace_all(directory_as_str, "");
 
         let id = sim_id_result.into_owned();
         ids.push(id);
@@ -148,8 +190,10 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(cors)
             .service(health)
-            .service(get_default_config)
             .service(get_config_form)
+            .service(get_config)
+            .service(list_configs)
+            .service(create_or_update_config)
             .service(validate_config)
             .service(start_simulation)
             .service(list_simulations)
