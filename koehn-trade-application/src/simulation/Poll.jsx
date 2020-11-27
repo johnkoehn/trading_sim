@@ -29,15 +29,29 @@ async function getNewGenerations(simulationId, generations) {
     if (generationsIds.length === currentPosition) {
         return [];
     }
+    console.log(generations);
+    console.log(currentPosition);
 
     const newGenerations = await Promise.all(
-        generationsIds.splice(currentPosition).map((id) => fetch(`${process.env.REACT_APP_SIMULATION_HOST}/simulations/${simulationId}/generations/${id}`))
+        generationsIds.splice(currentPosition).map(async (id) => {
+            const response = await fetch(`${process.env.REACT_APP_SIMULATION_HOST}/simulations/${simulationId}/generations/${id}`);
+
+            if (!response.ok) {
+                throw new Error(`Failed to get generation ${id}`);
+            }
+
+            return response.json();
+        })
     );
+
+    console.log('New generations: ', newGenerations);
 
     return newGenerations;
 }
 
+// TODO: FIX!!!
 function Poll(props) {
+    console.log('PROPS TEST', props.generations);
     useInterval(async () => {
         if (!props.runningSimulation) {
             return;

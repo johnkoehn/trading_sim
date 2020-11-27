@@ -1,6 +1,7 @@
 import React from 'react';
 import fetch from 'node-fetch';
 import Poll from './Poll';
+import Graph from './Graph';
 import './Simulation.css';
 
 class Simulation extends React.Component {
@@ -17,7 +18,6 @@ class Simulation extends React.Component {
 
     // eslint-disable-next-line class-methods-use-this
     onStatusUpdate(status, newGenerations) {
-        console.log(status);
         if (status === 'COMPLETED') {
             this.setState({
                 runningSimulation: false
@@ -25,6 +25,7 @@ class Simulation extends React.Component {
         }
 
         if (newGenerations.length > 0) {
+            console.log(newGenerations);
             this.setState((prevState) => {
                 return {
                     generations: prevState.generations.concat(newGenerations)
@@ -86,6 +87,7 @@ class Simulation extends React.Component {
                     onStatusUpdate={(status, newGenerations) => this.onStatusUpdate(status, newGenerations)}
                     generations={this.state.generations}
                 />
+                <Graph generations={this.state.generations} />
             </div>
         );
     }
