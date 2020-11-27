@@ -101,6 +101,8 @@ class Settings extends React.Component {
             selectedConfigOption,
             configName: selectedConfigOption.label
         });
+
+        this.props.onConfigChange(defaultConfig, []);
     }
 
     componentWillUnmount() {

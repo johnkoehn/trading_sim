@@ -1,5 +1,6 @@
 import React from 'react';
 import fetch from 'node-fetch';
+import Poll from './Poll';
 import './Simulation.css';
 
 class Simulation extends React.Component {
@@ -7,27 +8,43 @@ class Simulation extends React.Component {
         super(props);
 
         this.state = {
-            config: undefined,
-            validationErrors: [],
             runningSimulation: false,
-            simulationErrorMessage: undefined
+            simulationErrorMessage: undefined,
+            simulationId: undefined,
+            generations: []
         };
     }
 
-    onConfigChange(config, validationErrors) {
-        this.setState({
-            config,
-            validationErrors
-        });
+    // eslint-disable-next-line class-methods-use-this
+    onStatusUpdate(status, newGenerations) {
+        console.log(status);
+        if (status === 'COMPLETED') {
+            this.setState({
+                runningSimulation: false
+            });
+        }
+
+        if (newGenerations.length > 0) {
+            this.setState((prevState) => {
+                return {
+                    generations: prevState.generations.concat(newGenerations)
+                };
+            });
+        }
     }
 
     async runSimulation() {
         this.setState({
-            simulationErrorMessage: undefined
+            simulationErrorMessage: undefined,
+            generations: []
         });
 
         const runSimulationResponse = await fetch(`${process.env.REACT_APP_SIMULATION_HOST}/simulations`, {
-            method: 'POST'
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(this.props.config)
         });
 
         if (runSimulationResponse.status === 400) {
@@ -44,8 +61,10 @@ class Simulation extends React.Component {
             return;
         }
 
+        const simulationId = (await runSimulationResponse.json()).id;
         this.setState({
-            runningSimulation: true
+            runningSimulation: true,
+            simulationId
         });
     }
 
@@ -56,13 +75,17 @@ class Simulation extends React.Component {
                 'Run Simualtion';
         };
 
-        console.log(this.state.config);
-        console.log(this.state.validationErrors);
         return (
             <div className="main">
                 <p>Here is the simulation page</p>
                 <button type="button" disabled={this.state.runningSimulation} onClick={this.runSimulation.bind(this)}>{getButtonText()}</button>
                 <p className="errorMessage">{this.state.simulationErrorMessage}</p>
+                <Poll
+                    simulationId={this.state.simulationId}
+                    runningSimulation={this.state.runningSimulation}
+                    onStatusUpdate={(status, newGenerations) => this.onStatusUpdate(status, newGenerations)}
+                    generations={this.state.generations}
+                />
             </div>
         );
     }
