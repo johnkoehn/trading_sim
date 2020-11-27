@@ -13,17 +13,6 @@ form input {
     border: 1px solid #9c9c9c;
 }
 
-form button {
-    background: lightgrey;
-    padding: 0.7em;
-    width: 100%;
-    border: 0;
-}
-
-form button:hover {
-    background: gold;
-}
-
 label {
     padding: 0.5em 0.5em 0.5em 0;
     text-align: left;

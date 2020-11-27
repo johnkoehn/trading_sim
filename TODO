@@ -2,3 +2,4 @@
 * Gather simulation results
 * Run single bot
 * add hamming -- see https://github.com/johnkoehn/RoboStock/blob/master/RoboStock/src/robo/Reproduction.java
+* Check out anyhow https://crates.io/crates/anyhow for generic error handling

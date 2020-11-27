@@ -18,9 +18,21 @@ use serde::{Deserialize, Serialize};
 pub struct Simulation {
     price_history: Arc<Vec<PriceData>>,
     config: Arc<Config>,
-    bots: Vec<Bot>
+    bots: Vec<Bot>,
+    id: String
 }
 
+#[derive(Copy, Clone, PartialEq, Eq, Hash, Debug, Serialize, Deserialize)]
+enum Status {
+    RUNNING,
+    FAILED,
+    COMPLETED
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct SimulationStatus {
+    status: Status
+}
 
 pub fn breed(bots: &Vec::<Bot>, config: &Config) -> Vec::<Bot> {
     // caculate total fitness
@@ -72,33 +84,7 @@ pub fn breed(bots: &Vec::<Bot>, config: &Config) -> Vec::<Bot> {
 
 // https://doc.rust-lang.org/book/ch09-02-recoverable-errors-with-result.html
 impl Simulation {
-    pub fn new(path_to_price_history: &str, path_to_config: &str) -> Result<Simulation, Box<dyn Error>> {
-        let price_history_as_json = fs::read_to_string(path_to_price_history)?;
-        let config_as_yaml = fs::read_to_string(path_to_config)?;
-
-        let price_data: Vec<PriceDataRaw> = serde_json::from_str(&price_history_as_json.as_str())?;
-        let price_history: Vec<PriceData> = price_data.iter().map(|x| PriceData::new(x)).collect();
-
-        let config: Config = serde_yaml::from_str(&config_as_yaml.as_str())?;
-        if config.validate_config().len() > 0 {
-            panic!("Config validation failed!")
-        }
-
-        let mut bots = Vec::<Bot>::new();
-        for id in 0..config.number_of_bots {
-            bots.push(Bot::new(&config, id));
-        }
-
-        let simulation = Simulation {
-            price_history: Arc::new(price_history),
-            config: Arc::new(config),
-            bots
-        };
-
-        Ok(simulation)
-    }
-
-    pub fn web_create(path_to_price_history: &str, config: Config) -> Result<Simulation, Box<dyn Error>> {
+    pub fn web_create(path_to_price_history: &str, config: Config, id: String) -> Result<Simulation, Box<dyn Error>> {
         let price_history_as_json = fs::read_to_string(path_to_price_history)?;
 
         let price_data: Vec<PriceDataRaw> = serde_json::from_str(&price_history_as_json.as_str())?;
@@ -116,15 +102,49 @@ impl Simulation {
         let simulation = Simulation {
             price_history: Arc::new(price_history),
             config: Arc::new(config),
-            bots
+            bots,
+            id
         };
 
         Ok(simulation)
     }
 
-    pub fn run(&mut self, generation: u64) {
-        if generation > self.config.number_of_generations {
+
+    fn update_status(&self, simulation_status: &SimulationStatus) {
+        let simulation_status_as_json = serde_json::to_string_pretty(simulation_status).unwrap();
+
+        let file_name = format!("./simulations/{}/status.json", self.id);
+        fs::write(file_name, simulation_status_as_json).unwrap();
+    }
+
+    // create a function to start the simulation
+    // this function will manage the state
+    // any errors will result in setting state to failed
+    pub fn start_simulation(&mut self) {
+        let path = format!("./simulations/{}/results", self.id);
+        fs::create_dir_all(&path).unwrap();
+
+        let mut simulation_status = SimulationStatus {
+            status: Status::RUNNING
+        };
+        self.update_status(&simulation_status);
+
+        let run_result = self.run(1);
+
+        if run_result.is_err() {
+            simulation_status.status = Status::FAILED;
+            self.update_status(&simulation_status);
             return;
+        }
+
+        simulation_status.status = Status::COMPLETED;
+        self.update_status(&simulation_status);
+    }
+
+
+    pub fn run(&mut self, generation: u64) -> Result<(), Box<dyn Error>> {
+        if generation > self.config.number_of_generations {
+            return Ok(());
         }
 
         println!("Generation {}", generation);
@@ -178,7 +198,7 @@ impl Simulation {
 
         let mut bots_post_simulation = Vec::<Bot>::new();
         for _ in 0..self.config.number_of_threads {
-            let mut bots = rx.recv().unwrap();
+            let mut bots = rx.recv()?;
             bots_post_simulation.append(&mut bots);
         }
 
@@ -190,13 +210,16 @@ impl Simulation {
         }
 
         // write the bots to a generations file
-        let results_as_json = serde_json::to_string_pretty(&bots_post_simulation).unwrap();
-        let file_name = format!("./simulations/current/generation_{}.json", generation);
-        fs::write(file_name, results_as_json).unwrap();
+        let results_as_json = serde_json::to_string_pretty(&bots_post_simulation)?;
+
+        let file_name = format!("./simulations/{}/results/generation_{}.json", self.id, generation);
+        fs::write(file_name, results_as_json)?;
 
         let next_generation_bots = breed(&bots_post_simulation, &self.config);
         self.bots = next_generation_bots;
         self.run(generation + 1);
+
+        return Ok(())
     }
 
     pub fn state(&self) {

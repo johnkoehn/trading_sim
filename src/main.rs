@@ -105,10 +105,19 @@ async fn validate_config(config: web::Json<Config>) -> impl Responder {
 }
 
 #[post("/simulations")]
-async fn start_simulation(config: web::Json<Config>) -> impl Responder {
-    let mut simulation = Simulation::web_create("./historicalData/etherumPriceData.json", config.into_inner()).unwrap();
+async fn start_simulation(config_web: web::Json<Config>) -> impl Responder {
+    let config = config_web.into_inner();
+    let config_errors = config.validate_config();
+
+    if config_errors.len() > 0 {
+        return HttpResponse::BadRequest()
+            .content_type("application/json")
+            .body(serde_json::to_string(&config_errors).unwrap());
+    }
+
+    let mut simulation = Simulation::web_create("./historicalData/etherumPriceData.json", config, String::from("current")).unwrap();
     thread::spawn(move || {
-        simulation.run(1);
+        simulation.start_simulation();
     });
 
     let simulation_response = SimulationResponse {
@@ -144,8 +153,15 @@ async fn list_simulations() -> impl Responder {
 
 #[get("/simulations/{simulation_id}/generations")]
 async fn list_generations(web::Path(simulation_id): web::Path<(String)>) -> impl Responder {
-    let directory = "./simulations/".to_owned() + simulation_id.as_str();
-    let entries = fs::read_dir(&directory).unwrap();
+    let directory = "./simulations/".to_owned() + simulation_id.as_str() + "/results";
+
+    let read_dir_result = fs::read_dir(&directory);
+    if read_dir_result.is_err() {
+        return HttpResponse::NotFound()
+            .body("");
+    }
+
+    let entries = read_dir_result.unwrap();
 
     let mut ids = Vec::<String>::new();
     for entry in entries {
@@ -169,12 +185,34 @@ async fn list_generations(web::Path(simulation_id): web::Path<(String)>) -> impl
 
 #[get("/simulations/{simulation_id}/generations/{generation_id}")]
 async fn get_generation(web::Path((simulation_id, generation_id)): web::Path<(String, String)>) -> impl Responder {
-    let generation_path = "./simulations/".to_owned() + simulation_id.as_str() + "/" + generation_id.as_str();
-    let generation = fs::read_to_string(generation_path).unwrap();
+    let generation_path = "./simulations/".to_owned() + simulation_id.as_str() + "/results/" + generation_id.as_str();
+    let generation_read_result = fs::read_to_string(&generation_path);
+
+    if generation_read_result.is_err() {
+        return HttpResponse::NotFound()
+            .body("");
+    }
+
+    let generation = generation_read_result.unwrap();
 
     HttpResponse::Ok()
         .content_type("application/json")
         .body(generation)
+}
+
+#[get("/simulations/{simulation_id}/status")]
+async fn get_simulation_status(web::Path(simulation_id): web::Path<String>) -> impl Responder {
+    let status_path = "./simulations/".to_owned() + simulation_id.as_str() + "/status.json";
+    let status_result = fs::read_to_string(status_path);
+
+    if status_result.is_err() {
+        return HttpResponse::NotFound()
+            .body("");
+    }
+
+    HttpResponse::Ok()
+        .content_type("application/json")
+        .body(status_result.unwrap())
 }
 
 #[actix_web::main]
@@ -194,6 +232,7 @@ async fn main() -> std::io::Result<()> {
             .service(list_simulations)
             .service(list_generations)
             .service(get_generation)
+            .service(get_simulation_status)
     })
     .bind("127.0.0.1:8080")?
     .run()

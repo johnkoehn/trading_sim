@@ -16,3 +16,18 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+button {
+  background: lightgrey;
+  padding: 0.7em;
+  width: 125px;
+  border: 0;
+}
+
+button:hover {
+  background: gold;
+}
+
+button:hover:disabled {
+  background: lightgrey;
+}
