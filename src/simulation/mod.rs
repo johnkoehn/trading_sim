@@ -217,7 +217,7 @@ impl Simulation {
 
         let next_generation_bots = breed(&bots_post_simulation, &self.config);
         self.bots = next_generation_bots;
-        self.run(generation + 1);
+        self.run(generation + 1)?;
 
         return Ok(())
     }
