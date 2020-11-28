@@ -2,6 +2,7 @@ import React from 'react';
 import fetch from 'node-fetch';
 import Poll from './Poll';
 import AverageFitness from './Graphs/AverageFitness';
+import BestBot from './BestBot';
 import './Simulation.css';
 
 class Simulation extends React.Component {
@@ -76,18 +77,23 @@ class Simulation extends React.Component {
         };
 
         return (
-            <div className="main">
-                <p>Here is the simulation page</p>
-                <button type="button" disabled={this.state.runningSimulation} onClick={this.runSimulation.bind(this)}>{getButtonText()}</button>
-                <p className="errorMessage">{this.state.simulationErrorMessage}</p>
-                <Poll
-                    simulationId={this.state.simulationId}
-                    runningSimulation={this.state.runningSimulation}
-                    onStatusUpdate={(status, newGenerations) => this.onStatusUpdate(status, newGenerations)}
-                    generations={this.state.generations}
-                />
-                <AverageFitness generations={this.state.generations} />
-            </div>
+            <>
+                <div className="main">
+                    <p>Simulation</p>
+                    <button type="button" disabled={this.state.runningSimulation} onClick={this.runSimulation.bind(this)}>{getButtonText()}</button>
+                    <p className="errorMessage">{this.state.simulationErrorMessage}</p>
+                    <Poll
+                        simulationId={this.state.simulationId}
+                        runningSimulation={this.state.runningSimulation}
+                        onStatusUpdate={(status, newGenerations) => this.onStatusUpdate(status, newGenerations)}
+                        generations={this.state.generations}
+                    />
+                    <AverageFitness generations={this.state.generations} />
+                    <div className="bot">
+                        <BestBot generations={this.state.generations} />
+                    </div>
+                </div>
+            </>
         );
     }
 }
