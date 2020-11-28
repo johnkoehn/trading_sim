@@ -1,0 +1,80 @@
+form {
+    display: grid;
+    grid-gap: 4px;
+    max-width: 600px;
+    border: 1px solid #c1c1c1;
+    margin: 2rem auto 0 auto;
+    padding: 1em;
+    background: #f9f9f9;
+}
+
+form input {
+    background: #fff;
+    border: 1px solid #9c9c9c;
+}
+
+label {
+    padding: 0.5em 0.5em 0.5em 0;
+    text-align: left;
+}
+
+/* This is for labels that contain a possible Settings Error */
+.input-label {
+    grid-column: 1 / 2;
+}
+
+/* Ones without settings error */
+.display-label {
+    grid-column: 1 / 2;
+}
+
+input {
+    padding: 0.7em;
+    margin-bottom: 0.5rem;
+    width: 75px;
+}
+
+input:focus {
+    outline: 3px solid gold;
+}
+
+@media (min-width: 400px) {
+    form {
+        grid-template-columns: 200px 0.25fr auto;
+        grid-gap: 4px;
+    }
+
+    label {
+      grid-column: 1 / 2;
+    }
+
+    h3 {
+        grid-column: 1 / 2;
+        text-align: left;
+    }
+
+    .level-1 {
+        text-indent: 1em
+    }
+
+    .level-2 {
+        text-indent: 2em;
+    }
+
+    .label-0 {
+        text-indent: 1em;
+    }
+
+    .label-1 {
+        text-indent: 2em;
+    }
+
+    .error {
+        grid-column: 3;
+    }
+
+    input,
+    button {
+      grid-column: 2 / 3;
+    }
+}

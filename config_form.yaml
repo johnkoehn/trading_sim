@@ -1,0 +1,147 @@
+####
+# This is the form the rust simulation enginee will send to the UI for building the settings screen
+####
+Traits:
+  Label: "Traits"
+  Type: object
+  Fields:
+    NumberOfAveragingPeriods:
+      Label: "Number Of Averaging Periods"
+      Type: object
+      Fields:
+        Min:
+          Path: "Traits.NumberOfAveragingPeriods.Min"
+          Label: Min
+          Type: unsigned_integer
+        Max:
+          Path: "Traits.NumberOfAveragingPeriods.Max"
+          Label: Max
+          Type: unsigned_integer
+    MinimumBuyMomentum:
+      Label: "Minimum Buy Momentum"
+      Type: object
+      Fields:
+        Min:
+          Path: "Traits.MinimumBuyMomentum.Min"
+          Label: Min
+          Type: float
+        Max:
+          Path: "Traits.MinimumBuyMomentum.Max"
+          Label: Max
+          Type: float
+    MaximumBuyMomentum:
+      Label: "Maximum Buy Momentum"
+      Type: object
+      Fields:
+        Min:
+          Path: "Traits.MaximumBuyMomentum.Min"
+          Label: Min
+          Type: float
+        Max:
+          Path: "Traits.MaximumBuyMomentum.Max"
+          Label: Max
+          Type: float
+    TrailingStopLoss:
+      Label: "Trailing Stop Loss"
+      Type: object
+      Fields:
+        Min:
+          Path: "Traits.TrailingStopLoss.Min"
+          Label: Min
+          Type: float
+        Max:
+          Path: "Traits.TrailingStopLoss.Max"
+          Label: Max
+          Type: float
+    StopLoss:
+      Label: "Stop Loss"
+      Type: object
+      Fields:
+        Min:
+          Path: "Traits.StopLoss.Min"
+          Label: Min
+          Type: float
+        Max:
+          Path: "Traits.StopLoss.Max"
+          Label: Max
+          Type: float
+    TargetSellPercentage:
+      Label: "Target Sell Percentage"
+      Type: object
+      Fields:
+        Min:
+          Path: "Traits.TargetSellPercentage.Min"
+          Label: Min
+          Type: float
+        Max:
+          Path: "Traits.TargetSellPercentage.Max"
+          Label: Max
+          Type: float
+    MinimumHoldingPeriods:
+      Label: "Minimum Holding Periods"
+      Type: object
+      Fields:
+        Min:
+          Path: "Traits.MinimumHoldingPeriods.Min"
+          Label: Min
+          Type: unsigned_integer
+        Max:
+          Path: "Traits.MinimumHoldingPeriods.Max"
+          Label: Max
+          Type: unsigned_integer
+    MaximumHoldingPeriods:
+      Label: "Maximum Holding Periods"
+      Type: object
+      Fields:
+        Min:
+          Path: "Traits.MaximumHoldingPeriods.Min"
+          Label: Min
+          Type: unsigned_integer
+        Max:
+          Path: "Traits.MaximumHoldingPeriods.Max"
+          Label: Max
+          Type: unsigned_integer
+    PercentPurchase:
+      Label: "Percent Purchase"
+      Type: object
+      Fields:
+        Min:
+          Path: "Traits.PercentPurchase.Min"
+          Label: Min
+          Type: unsigned_integer
+        Max:
+          Path: "Traits.PercentPurchase.Max"
+          Label: Max
+          Type: unsigned_integer
+General:
+  Label: "General"
+  Type: object
+  Fields:
+    NumberOfBots:
+      Path: "NumberOfBots"
+      Label: "Number Of Bots"
+      Type: unsigned_integer
+    NumberOfGenerations:
+      Path: NumberOfGenerations
+      Label: "Number Of Generations"
+      Type: unsigned_integer
+    StartingMoney:
+      Path: StartingMoney
+      Label: "Starting Money"
+      Type: float
+    MinimumPurchaseSize:
+      Path: MinimumPurchaseSize
+      Label: "Minimum Purchase Size"
+      Type: float
+    TransactionFeeAsPercentage:
+      Path: TransactionFeeAsPercentage
+      Label: "Transaction Fee as Percentage"
+      Type: float
+    NumberOfThreads:
+      Path: NumberOfThreads
+      Label: "Number of Threads"
+      Type: unsigned_integer
+    MutationChance:
+      Path: MutationChance
+      Label: "Mutation Chance"
+      Type: float

@@ -1,0 +1,15 @@
+.main {
+    background: #f9f9f9;
+    border: 1px solid #c1c1c1;
+    margin-top: 32px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.errorMessage {
+    color: red;
+}
+
+.bot {
+    text-align: left;
+}

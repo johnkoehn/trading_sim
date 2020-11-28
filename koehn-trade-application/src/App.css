@@ -1,0 +1,6 @@
+.App {
+  text-align: center;
+  display: grid;
+  grid-template-columns: auto auto;
+  background-color: rgb(43, 41, 41);
+}
