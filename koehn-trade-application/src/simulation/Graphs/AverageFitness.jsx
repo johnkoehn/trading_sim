@@ -3,16 +3,16 @@ import { LineChart, Line, CartesianGrid, XAxis, YAxis } from 'recharts';
 
 function buildData(generations) {
     return generations.map((generation, index) => {
-        const totalMoney = generation.reduce((total, bot) => total + bot.money, 0);
+        const totalFitness = generation.reduce((total, bot) => total + bot.fitness, 0);
 
         return {
-            name: index,
-            amt: totalMoney / generation.length
+            name: index + 1,
+            amt: totalFitness / generation.length
         };
     });
 }
 
-function Graph(props) {
+function AverageFitness(props) {
     if (props.generations.length === 0) {
         return (
             <></>
@@ -31,4 +31,4 @@ function Graph(props) {
     );
 }
 
-export default Graph;
+export default AverageFitness;

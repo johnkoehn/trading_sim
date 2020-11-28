@@ -29,8 +29,6 @@ async function getNewGenerations(simulationId, generations) {
     if (currentPosition >= generationsIds.length) {
         return [];
     }
-    console.log(generations);
-    console.log(currentPosition);
 
     const newGenerations = await Promise.all(
         generationsIds.splice(currentPosition).map(async (id) => {
@@ -44,14 +42,10 @@ async function getNewGenerations(simulationId, generations) {
         })
     );
 
-    console.log('New generations: ', newGenerations);
-
     return newGenerations;
 }
 
-// TODO: FIX!!!
 function Poll(props) {
-    console.log('PROPS TEST', props.generations);
     useInterval(async () => {
         if (!props.runningSimulation) {
             return;
