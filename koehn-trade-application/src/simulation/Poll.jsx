@@ -26,7 +26,7 @@ async function getNewGenerations(simulationId, generations) {
 
     const generationsIds = await listGenerationsResponse.json();
     const currentPosition = generations.length;
-    if (generationsIds.length === currentPosition) {
+    if (currentPosition >= generationsIds.length) {
         return [];
     }
     console.log(generations);

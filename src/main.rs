@@ -10,6 +10,7 @@ use regex::Regex;
 extern crate serde_derive;
 extern crate alphanumeric_sort;
 use crate::simulation::Simulation;
+use chrono::{Timelike, Utc, Datelike};
 use std::thread;
 use std::fs;
 use serde::{Deserialize, Serialize};
@@ -115,13 +116,23 @@ async fn start_simulation(config_web: web::Json<Config>) -> impl Responder {
             .body(serde_json::to_string(&config_errors).unwrap());
     }
 
-    let mut simulation = Simulation::web_create("./historicalData/etherumPriceData.json", config, String::from("current")).unwrap();
+    // create a date id
+    let current_time_in_utc = Utc::now();
+    let id = format!("{}-{}-{}-{}-{}-{}",
+        current_time_in_utc.year(),
+        current_time_in_utc.month(),
+        current_time_in_utc.day(),
+        current_time_in_utc.hour(),
+        current_time_in_utc.minute(),
+        current_time_in_utc.second()
+    );
+    let mut simulation = Simulation::web_create("./historicalData/etherumPriceData.json", config, id.clone()).unwrap();
     thread::spawn(move || {
         simulation.start_simulation();
     });
 
     let simulation_response = SimulationResponse {
-        id: String::from("current")
+        id
     };
 
     HttpResponse::Ok()
