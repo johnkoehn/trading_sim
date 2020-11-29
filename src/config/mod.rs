@@ -32,7 +32,8 @@ pub struct Config {
     pub minimum_purchase_size: f64,
     pub transaction_fee_as_percentage: f64,
     pub number_of_threads: u64,
-    pub mutation_chance: f64
+    pub mutation_chance: f64,
+    pub hamming: f64
 }
 
 impl Config {
@@ -112,11 +113,14 @@ impl Config {
             config_errors.push(ConfigError::new("Mutation Chance must be between 0 and 1".to_string(), "MutationChance".to_string()));
         }
 
+        if self.hamming < 0.0 || self.hamming > 100.0 {
+            config_errors.push(ConfigError::new("Hamming must be between 0 and 100".to_string(), "Hamming".to_string()));
+        }
+
         return config_errors;
     }
 }
 
-// Add type to each ????
 mod traits {
     #[derive(Debug, Serialize, Deserialize)]
     #[serde(rename_all = "PascalCase")]

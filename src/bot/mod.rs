@@ -193,6 +193,33 @@ impl Bot {
         self.fitness = self.money;
     }
 
+    // Hamming is the average percent difference between all traits
+    // This is used for determining if the bots are to similar to breeed
+    pub fn hamming(&self, bot_two: &Bot) -> f64 {
+        let calculate_percent_difference = |value_one: f64, value_two: f64| -> f64 {
+            let diff = (value_one - value_two) / ((value_one + value_two) / 2.0);
+
+            return diff.abs() * 100.0;
+        };
+
+        let traits_one = self.traits;
+        let traits_two = bot_two.traits;
+
+        let number_of_averaging_periods_percent_diff = calculate_percent_difference(traits_one.number_of_averaging_periods as f64, traits_two.number_of_averaging_periods as f64);
+        let minimum_buy_momentum_percent_diff = calculate_percent_difference(traits_one.minimum_buy_momentum as f64, traits_two.minimum_buy_momentum as f64);
+        let maximum_buy_momentum_percent_diff = calculate_percent_difference(traits_one.maximum_buy_momentum as f64, traits_two.maximum_buy_momentum as f64);
+        let trailing_stop_loss_percent_diff = calculate_percent_difference(traits_one.trailing_stop_loss as f64, traits_two.trailing_stop_loss as f64);
+        let stop_loss_percent_diff = calculate_percent_difference(traits_one.stop_loss as f64, traits_two.stop_loss as f64);
+        let minimum_holding_periods_percent_diff = calculate_percent_difference(traits_one.minimum_holding_periods as f64, traits_two.minimum_holding_periods as f64);
+        let maximum_holding_periods_percent_diff = calculate_percent_difference(traits_one.maximum_holding_periods as f64, traits_two.maximum_holding_periods as f64);
+        let percent_purchase_percent_diff = calculate_percent_difference(traits_one.percent_purchase as f64, traits_two.percent_purchase as f64);
+        let target_sell_percentage_percent_diff = calculate_percent_difference(traits_one.target_sell_percentage as f64, traits_two.target_sell_percentage as f64);
+
+        return (number_of_averaging_periods_percent_diff + minimum_buy_momentum_percent_diff + maximum_buy_momentum_percent_diff + trailing_stop_loss_percent_diff
+        + stop_loss_percent_diff + minimum_holding_periods_percent_diff + maximum_holding_periods_percent_diff
+        + percent_purchase_percent_diff + target_sell_percentage_percent_diff) / 9.0
+    }
+
     pub fn breed<R: Rng>(&self, bot_two: &Bot, rng: &mut R, config: &Config, id: u64) -> Bot {
         let traits_one = self.traits;
         let traits_two = bot_two.traits;

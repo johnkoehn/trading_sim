@@ -341,4 +341,27 @@ mod bot_assets {
         assert_eq!(first_sold_holding.sell_reason, SellReason::TargetedSellPrice);
         assert_relative_eq!(bot.money, 1032.084, max_relative = 0.001);
     }
+
+    #[test]
+    fn test_hamming_no_difference() {
+        let traits = generate_default_traits();
+        let bot_one = generate_default_bot(traits);
+        let bot_two = generate_default_bot(traits);
+
+        let hamming_value = bot_one.hamming(&bot_two);
+        assert_relative_eq!(hamming_value, 0.0, max_relative = 0.0001);
+    }
+
+    #[test]
+    fn test_hamming_difference() {
+        let traits = generate_default_traits();
+        let bot_one = generate_default_bot(traits);
+        let mut bot_two = generate_default_bot(traits);
+
+        bot_two.traits.maximum_buy_momentum = 4.0;
+        bot_two.traits.number_of_averaging_periods = 10;
+
+        let hamming_value = bot_one.hamming(&bot_two);
+        assert_relative_eq!(hamming_value, 25.589, max_relative = 0.0001);
+    }
 }

@@ -70,7 +70,9 @@ pub fn breed(bots: &Vec::<Bot>, config: &Config) -> Vec::<Bot> {
             let index_two = rng.gen_range(0, breeding_pool.len() - 1) as u64;
             let bot_two = breeding_pool.get(&index_two).unwrap();
 
-            if bot_one.id != bot_two.id {
+            let hamming_value = bot_one.hamming(&bot_two);
+
+            if bot_one.id != bot_two.id && hamming_value > config.hamming {
                 // breed
                 let baby_bot = bot_one.breed(&bot_two, &mut rng, config, new_bots.len() as u64);
                 new_bots.push(baby_bot);

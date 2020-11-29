@@ -40,3 +40,4 @@ MinimumPurchaseSize: 100 # Mininimum purchase size allowed
 TransactionFeeAsPercentage: .007 #the fee to charge on transactions
 NumberOfThreads: 10
 MutationChance: 0.2
+Hamming: 1.0
