@@ -10,13 +10,16 @@ use crate::price_data::PriceData;
 // use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Bot {
     pub id: u64,
     pub traits: Traits,
     pub money: f64,
     pub current_holdings: Vec<CurrentHolding>,
     pub sold_holdings: Vec<SoldHolding>,
-    pub fitness: f64
+    pub fitness: f64,
+    pub start_time: Option<u64>,
+    pub end_time: Option<u64>
 }
 
 fn calculate_momentum(current_price: f64, previous_price: f64) -> f64 {
@@ -70,7 +73,25 @@ impl Bot {
             money: config.starting_money,
             current_holdings: Vec::<CurrentHolding>::new(),
             sold_holdings: Vec::<SoldHolding>::new(),
-            fitness: 0.0
+            fitness: 0.0,
+            start_time: None,
+            end_time: None
+        }
+    }
+
+    pub fn create_clone(&self, config: &Config, id: u64) -> Bot {
+        let traits_copy = self.traits.clone();
+        let money = config.starting_money;
+
+        Bot {
+            id,
+            traits: traits_copy,
+            money,
+            current_holdings: Vec::<CurrentHolding>::new(),
+            sold_holdings: Vec::<SoldHolding>::new(),
+            fitness: 0.0,
+            start_time: None,
+            end_time: None
         }
     }
 
@@ -93,7 +114,7 @@ impl Bot {
         let fee = money_spent_no_fee * config.transaction_fee_as_percentage;
         let money_spent = money_spent_no_fee + fee;
 
-        let new_holding = CurrentHolding::new(current_price, amount_to_buy, money_spent, Asset::ETH, &self.traits, fee);
+        let new_holding = CurrentHolding::new(current_price, current_price_data.time, amount_to_buy, money_spent, Asset::ETH, &self.traits, fee);
 
         self.current_holdings.push(new_holding);
         self.money -= money_spent;
@@ -113,13 +134,13 @@ impl Bot {
                     let sell_fee = calculate_sell_fee(holding.targeted_sell_price, config.transaction_fee_as_percentage, holding.amount);
                     let money_from_sell = calculate_money_from_sell(holding.targeted_sell_price, sell_fee, holding.amount);
 
-                    return SoldHolding::new(&holding, holding.targeted_sell_price, money_from_sell, sell_fee, reason);
+                    return SoldHolding::new(&holding, holding.targeted_sell_price, money_from_sell, sell_fee, reason, current_price_data.time);
                 }
 
                 let sell_fee = calculate_sell_fee(current_price_data.close, config.transaction_fee_as_percentage, holding.amount);
                 let money_from_sell = calculate_money_from_sell(current_price_data.close, sell_fee, holding.amount);
 
-                return SoldHolding::new(&holding, current_price_data.close, money_from_sell, sell_fee, reason);
+                return SoldHolding::new(&holding, current_price_data.close, money_from_sell, sell_fee, reason, current_price_data.time);
             };
 
             let sell_reason = get_sell_reason(&self.traits, &holding, &current_price_data);
@@ -150,7 +171,7 @@ impl Bot {
             let sell_fee = calculate_sell_fee(current_price_data.close, transaction_fee_as_percentage, holding.amount);
             let money_from_sell = calculate_money_from_sell(current_price_data.close, sell_fee, holding.amount);
 
-            self.sold_holdings.push(SoldHolding::new(&holding, current_price_data.close, money_from_sell, sell_fee, SellReason::Forced));
+            self.sold_holdings.push(SoldHolding::new(&holding, current_price_data.close, money_from_sell, sell_fee, SellReason::Forced, current_price_data.time));
             self.money += money_from_sell;
         }
         self.current_holdings.clear();
@@ -165,6 +186,10 @@ impl Bot {
     // In addition, we should set if to buy on open or close
     // Sell would occur on the flip? Or maybe be configurable by trait
     pub fn run_period(&mut self, price_history: &Arc<Vec<PriceData>>, period: u64, config: &Arc<Config>) {
+        if self.start_time.is_none() {
+            self.start_time = Some(price_history.get(0).unwrap().time);
+        }
+
         if period < self.traits.number_of_averaging_periods {
             return;
         }
@@ -175,6 +200,7 @@ impl Bot {
         // end of run
         if price_history.len() == (period + 1)  as usize {
             self.sell_all(&current_price_data, config.transaction_fee_as_percentage);
+            self.end_time = Some(current_price_data.time);
             return;
         }
 
@@ -191,6 +217,33 @@ impl Bot {
         }
 
         self.fitness = self.money;
+    }
+
+    // Hamming is the average percent difference between all traits
+    // This is used for determining if the bots are to similar to breeed
+    pub fn hamming(&self, bot_two: &Bot) -> f64 {
+        let calculate_percent_difference = |value_one: f64, value_two: f64| -> f64 {
+            let diff = (value_one - value_two) / ((value_one + value_two) / 2.0);
+
+            return diff.abs() * 100.0;
+        };
+
+        let traits_one = self.traits;
+        let traits_two = bot_two.traits;
+
+        let number_of_averaging_periods_percent_diff = calculate_percent_difference(traits_one.number_of_averaging_periods as f64, traits_two.number_of_averaging_periods as f64);
+        let minimum_buy_momentum_percent_diff = calculate_percent_difference(traits_one.minimum_buy_momentum as f64, traits_two.minimum_buy_momentum as f64);
+        let maximum_buy_momentum_percent_diff = calculate_percent_difference(traits_one.maximum_buy_momentum as f64, traits_two.maximum_buy_momentum as f64);
+        let trailing_stop_loss_percent_diff = calculate_percent_difference(traits_one.trailing_stop_loss as f64, traits_two.trailing_stop_loss as f64);
+        let stop_loss_percent_diff = calculate_percent_difference(traits_one.stop_loss as f64, traits_two.stop_loss as f64);
+        let minimum_holding_periods_percent_diff = calculate_percent_difference(traits_one.minimum_holding_periods as f64, traits_two.minimum_holding_periods as f64);
+        let maximum_holding_periods_percent_diff = calculate_percent_difference(traits_one.maximum_holding_periods as f64, traits_two.maximum_holding_periods as f64);
+        let percent_purchase_percent_diff = calculate_percent_difference(traits_one.percent_purchase as f64, traits_two.percent_purchase as f64);
+        let target_sell_percentage_percent_diff = calculate_percent_difference(traits_one.target_sell_percentage as f64, traits_two.target_sell_percentage as f64);
+
+        return (number_of_averaging_periods_percent_diff + minimum_buy_momentum_percent_diff + maximum_buy_momentum_percent_diff + trailing_stop_loss_percent_diff
+        + stop_loss_percent_diff + minimum_holding_periods_percent_diff + maximum_holding_periods_percent_diff
+        + percent_purchase_percent_diff + target_sell_percentage_percent_diff) / 9.0
     }
 
     pub fn breed<R: Rng>(&self, bot_two: &Bot, rng: &mut R, config: &Config, id: u64) -> Bot {
@@ -262,7 +315,9 @@ impl Bot {
             money: config.starting_money,
             current_holdings: Vec::<CurrentHolding>::new(),
             sold_holdings: Vec::<SoldHolding>::new(),
-            fitness: 0.0
+            fitness: 0.0,
+            start_time: None,
+            end_time: None
         };
     }
 }

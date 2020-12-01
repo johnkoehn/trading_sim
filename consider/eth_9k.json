@@ -1,0 +1,20 @@
+{
+    "id": 0,
+    "traits": {
+      "number_of_averaging_periods": 8020,
+      "minimum_buy_momentum": 5.229049692989451,
+      "maximum_buy_momentum": 7.01391347974663,
+      "trailing_stop_loss": 3.7412761886685986,
+      "stop_loss": 0.5807211597031259,
+      "minimum_holding_periods": 1822,
+      "maximum_holding_periods": 74199,
+      "percent_purchase": 99.75175313702107,
+      "target_sell_percentage": 14.456609386470042
+    },
+    "money": 9178.666039814474,
+    "currentHoldings": [],
+    "fitness": 9178.666039814474,
+    "startTime": 1515034800,
+    "endTime": 1604674800,
+    "numberOfSoldHolding": 22
+}

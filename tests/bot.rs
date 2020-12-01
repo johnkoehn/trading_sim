@@ -41,13 +41,15 @@ mod bot_assets {
             money: 1000.0,
             current_holdings: Vec::<CurrentHolding>::new(),
             sold_holdings: Vec::<SoldHolding>::new(),
-            fitness: 0.0
+            fitness: 0.0,
+            start_time: None,
+            end_time: None
         }
     }
 
     fn generate_price_history () -> Vec<PriceData> {
         let price_point1 = PriceData {
-            time: NaiveDateTime::from_timestamp(1515034800, 0),
+            time: 1515034800,
             low: 100.0,
             high: 110.0,
             open: 100.0,
@@ -55,7 +57,7 @@ mod bot_assets {
             volume: 100.0
         };
         let price_point2 = PriceData {
-            time: NaiveDateTime::from_timestamp(1515033900, 0),
+            time: 1515033900,
             low: 102.0,
             high: 105.0,
             open: 102.0,
@@ -64,7 +66,7 @@ mod bot_assets {
         };
 
         let price_point3 = PriceData {
-            time: NaiveDateTime::from_timestamp(1515033000, 0),
+            time: 1515033000,
             low: 100.0,
             high: 110.0,
             open: 105.0,
@@ -126,10 +128,14 @@ mod bot_assets {
         assert_relative_eq!(first_sold_holding.money_from_sell, 963.79, max_relative = 0.001);
         assert_relative_eq!(first_sold_holding.amount_gained, 57.5, max_relative = 0.001);
         assert_relative_eq!(first_sold_holding.percent_gained, 6.34, max_relative = 0.001);
+        assert_eq!(first_sold_holding.sell_time, 1515033000);
+        assert_eq!(first_sold_holding.purchase_time, 1515033900);
         assert_eq!(first_sold_holding.win, true);
         assert_eq!(first_sold_holding.sell_reason, SellReason::Forced);
 
         assert_relative_eq!(bot.money, 1057.5, max_relative = 0.001);
+        assert_eq!(bot.start_time.unwrap(), 1515034800);
+        assert_eq!(bot.end_time.unwrap(), 1515033000);
     }
 
     #[test]
@@ -146,7 +152,7 @@ mod bot_assets {
         price_point.high = 105.0;
 
         let fourth_price_point = PriceData {
-            time: NaiveDateTime::from_timestamp(1515033000, 0),
+            time: 1515033000,
             low: 100.0,
             high: 110.0,
             open: 105.0,
@@ -195,7 +201,7 @@ mod bot_assets {
         price_point.high = 105.0;
 
         let fourth_price_point = PriceData {
-            time: NaiveDateTime::from_timestamp(1515033000, 0),
+            time: 1515033000,
             low: 100.0,
             high: 110.0,
             open: 105.0,
@@ -247,7 +253,7 @@ mod bot_assets {
         price_point.high = 105.0;
 
         let fourth_price_point = PriceData {
-            time: NaiveDateTime::from_timestamp(1515033000, 0),
+            time: 1515033000,
             low: 100.0,
             high: 106.0,
             open: 105.0,
@@ -256,7 +262,7 @@ mod bot_assets {
         };
         price_history.push(fourth_price_point);
         let fifth_price_point = PriceData {
-            time: NaiveDateTime::from_timestamp(1515039000, 0),
+            time: 1515039000,
             low: 100.0,
             high: 106.0,
             open: 105.0,
@@ -305,7 +311,7 @@ mod bot_assets {
         price_point.close = 105.0;
 
         let fourth_price_point = PriceData {
-            time: NaiveDateTime::from_timestamp(1515033000, 0),
+            time: 1515033000,
             low: 100.0,
             high: 110.0,
             open: 105.0,
@@ -340,5 +346,28 @@ mod bot_assets {
         assert_eq!(first_sold_holding.win, true);
         assert_eq!(first_sold_holding.sell_reason, SellReason::TargetedSellPrice);
         assert_relative_eq!(bot.money, 1032.084, max_relative = 0.001);
+    }
+
+    #[test]
+    fn test_hamming_no_difference() {
+        let traits = generate_default_traits();
+        let bot_one = generate_default_bot(traits);
+        let bot_two = generate_default_bot(traits);
+
+        let hamming_value = bot_one.hamming(&bot_two);
+        assert_relative_eq!(hamming_value, 0.0, max_relative = 0.0001);
+    }
+
+    #[test]
+    fn test_hamming_difference() {
+        let traits = generate_default_traits();
+        let bot_one = generate_default_bot(traits);
+        let mut bot_two = generate_default_bot(traits);
+
+        bot_two.traits.maximum_buy_momentum = 4.0;
+        bot_two.traits.number_of_averaging_periods = 10;
+
+        let hamming_value = bot_one.hamming(&bot_two);
+        assert_relative_eq!(hamming_value, 25.589, max_relative = 0.0001);
     }
 }

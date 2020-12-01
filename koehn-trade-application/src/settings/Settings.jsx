@@ -231,6 +231,8 @@ class Settings extends React.Component {
             config,
             configName: selectedOption.label
         });
+
+        this.props.onConfigChange(config, []);
     }
 
     // eslint-disable-next-line class-methods-use-this

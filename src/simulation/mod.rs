@@ -4,7 +4,7 @@ use serde_json;
 use serde_yaml;
 use std::error::Error;
 use crate::bot::Bot;
-use crate::price_data::{PriceData, PriceDataRaw};
+use crate::price_data::{PriceData};
 use crate::config::Config;
 use std::thread;
 use std::sync::mpsc;
@@ -62,6 +62,12 @@ pub fn breed(bots: &Vec::<Bot>, config: &Config) -> Vec::<Bot> {
     let mut new_bots = Vec::<Bot>::new();
     let mut rng = rand::thread_rng();
 
+    // carry over elite bots
+    for x in 0..config.elite_bot_carry_over {
+        let elite_bot = bots.get(x as usize).unwrap().create_clone(config, x);
+        new_bots.push(elite_bot);
+    }
+
     while new_bots.len() < config.number_of_bots as usize {
         let index_one = rng.gen_range(0, breeding_pool.len() - 1) as u64;
 
@@ -70,7 +76,9 @@ pub fn breed(bots: &Vec::<Bot>, config: &Config) -> Vec::<Bot> {
             let index_two = rng.gen_range(0, breeding_pool.len() - 1) as u64;
             let bot_two = breeding_pool.get(&index_two).unwrap();
 
-            if bot_one.id != bot_two.id {
+            let hamming_value = bot_one.hamming(&bot_two);
+
+            if bot_one.id != bot_two.id && hamming_value > config.hamming {
                 // breed
                 let baby_bot = bot_one.breed(&bot_two, &mut rng, config, new_bots.len() as u64);
                 new_bots.push(baby_bot);
@@ -87,8 +95,7 @@ impl Simulation {
     pub fn web_create(path_to_price_history: &str, config: Config, id: String) -> Result<Simulation, Box<dyn Error>> {
         let price_history_as_json = fs::read_to_string(path_to_price_history)?;
 
-        let price_data: Vec<PriceDataRaw> = serde_json::from_str(&price_history_as_json.as_str())?;
-        let price_history: Vec<PriceData> = price_data.iter().map(|x| PriceData::new(x)).collect();
+        let price_history: Vec<PriceData> = serde_json::from_str(&price_history_as_json.as_str())?;
 
         if config.validate_config().len() > 0 {
             panic!("Config validation failed!")

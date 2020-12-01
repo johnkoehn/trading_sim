@@ -145,3 +145,11 @@ General:
       Path: MutationChance
       Label: "Mutation Chance"
       Type: float
+    Hamming:
+      Path: Hamming
+      Label: Hamming
+      Type: float
+    EliteBotCarryOver:
+      Path: EliteBotCarryOver
+      Label: EliteBotCarryOver
+      Type: unsigned_integer
