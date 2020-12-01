@@ -12,6 +12,7 @@ pub enum SellReason {
 }
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CurrentHolding {
     pub asset: Asset,
     pub purchase_time: u64,
@@ -65,6 +66,7 @@ impl CurrentHolding {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SoldHolding {
     pub asset: Asset,
     pub amount: f64,

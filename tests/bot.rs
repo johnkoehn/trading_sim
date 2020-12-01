@@ -41,7 +41,9 @@ mod bot_assets {
             money: 1000.0,
             current_holdings: Vec::<CurrentHolding>::new(),
             sold_holdings: Vec::<SoldHolding>::new(),
-            fitness: 0.0
+            fitness: 0.0,
+            start_time: None,
+            end_time: None
         }
     }
 
@@ -132,6 +134,8 @@ mod bot_assets {
         assert_eq!(first_sold_holding.sell_reason, SellReason::Forced);
 
         assert_relative_eq!(bot.money, 1057.5, max_relative = 0.001);
+        assert_eq!(bot.start_time.unwrap(), 1515034800);
+        assert_eq!(bot.end_time.unwrap(), 1515033000);
     }
 
     #[test]

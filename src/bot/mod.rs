@@ -10,13 +10,16 @@ use crate::price_data::PriceData;
 // use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Bot {
     pub id: u64,
     pub traits: Traits,
     pub money: f64,
     pub current_holdings: Vec<CurrentHolding>,
     pub sold_holdings: Vec<SoldHolding>,
-    pub fitness: f64
+    pub fitness: f64,
+    pub start_time: Option<u64>,
+    pub end_time: Option<u64>
 }
 
 fn calculate_momentum(current_price: f64, previous_price: f64) -> f64 {
@@ -70,7 +73,9 @@ impl Bot {
             money: config.starting_money,
             current_holdings: Vec::<CurrentHolding>::new(),
             sold_holdings: Vec::<SoldHolding>::new(),
-            fitness: 0.0
+            fitness: 0.0,
+            start_time: None,
+            end_time: None
         }
     }
 
@@ -84,7 +89,9 @@ impl Bot {
             money,
             current_holdings: Vec::<CurrentHolding>::new(),
             sold_holdings: Vec::<SoldHolding>::new(),
-            fitness: 0.0
+            fitness: 0.0,
+            start_time: None,
+            end_time: None
         }
     }
 
@@ -179,6 +186,10 @@ impl Bot {
     // In addition, we should set if to buy on open or close
     // Sell would occur on the flip? Or maybe be configurable by trait
     pub fn run_period(&mut self, price_history: &Arc<Vec<PriceData>>, period: u64, config: &Arc<Config>) {
+        if self.start_time.is_none() {
+            self.start_time = Some(price_history.get(0).unwrap().time);
+        }
+
         if period < self.traits.number_of_averaging_periods {
             return;
         }
@@ -189,6 +200,7 @@ impl Bot {
         // end of run
         if price_history.len() == (period + 1)  as usize {
             self.sell_all(&current_price_data, config.transaction_fee_as_percentage);
+            self.end_time = Some(current_price_data.time);
             return;
         }
 
@@ -303,7 +315,9 @@ impl Bot {
             money: config.starting_money,
             current_holdings: Vec::<CurrentHolding>::new(),
             sold_holdings: Vec::<SoldHolding>::new(),
-            fitness: 0.0
+            fitness: 0.0,
+            start_time: None,
+            end_time: None
         };
     }
 }

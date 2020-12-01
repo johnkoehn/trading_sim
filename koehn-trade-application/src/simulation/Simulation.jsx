@@ -90,7 +90,7 @@ class Simulation extends React.Component {
                     />
                     <AverageFitness generations={this.state.generations} />
                     <div className="bot">
-                        <BestBot generations={this.state.generations} />
+                        <BestBot generations={this.state.generations} runningSimulation={this.state.runningSimulation} />
                     </div>
                 </div>
             </>

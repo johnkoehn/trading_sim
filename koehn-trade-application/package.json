@@ -12,6 +12,7 @@
     "electron-is-dev": "^1.2.0",
     "electron-squirrel-startup": "^1.0.0",
     "eslint-config-airbnb": "^18.2.1",
+    "luxon": "^1.25.0",
     "node-fetch": "^2.6.1",
     "object-path-immutable": "^4.1.1",
     "react": "^17.0.1",
