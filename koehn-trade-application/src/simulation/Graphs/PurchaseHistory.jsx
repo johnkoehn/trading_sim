@@ -11,7 +11,6 @@ function buildData(bot) {
     const endYearMonth = DateTime.fromSeconds(bot.endTime).toFormat(YEAR_MONTH_FORMAT);
     const chartDate = [];
 
-    // build the year month hash
     let currentYearMonth = startYearMonth;
     while (currentYearMonth <= endYearMonth) {
         const buys = soldHoldings.filter((holding) => DateTime.fromSeconds(holding.purchaseTime).toFormat(YEAR_MONTH_FORMAT) === currentYearMonth);
