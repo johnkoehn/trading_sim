@@ -1,20 +1,74 @@
 {
-    "id": 0,
-    "traits": {
-      "number_of_averaging_periods": 8020,
-      "minimum_buy_momentum": 5.229049692989451,
-      "maximum_buy_momentum": 7.01391347974663,
-      "trailing_stop_loss": 3.7412761886685986,
-      "stop_loss": 0.5807211597031259,
-      "minimum_holding_periods": 1822,
-      "maximum_holding_periods": 74199,
-      "percent_purchase": 99.75175313702107,
-      "target_sell_percentage": 14.456609386470042
-    },
-    "money": 9178.666039814474,
-    "currentHoldings": [],
-    "fitness": 9178.666039814474,
-    "startTime": 1515034800,
-    "endTime": 1604674800,
-    "numberOfSoldHolding": 22
+    "bots": [
+        {
+            "id": 0,
+            "traits": {
+                "number_of_averaging_periods": 8020,
+                "minimum_buy_momentum": 5.229049692989451,
+                "maximum_buy_momentum": 7.01391347974663,
+                "trailing_stop_loss": 3.7412761886685986,
+                "stop_loss": 0.5807211597031259,
+                "minimum_holding_periods": 1822,
+                "maximum_holding_periods": 74199,
+                "percent_purchase": 99.75175313702107,
+                "target_sell_percentage": 14.456609386470042
+            },
+            "money": 9178.666039814474,
+            "currentHoldings": [],
+            "fitness": 9178.666039814474,
+            "startTime": 1515034800,
+            "endTime": 1604674800,
+            "numberOfSoldHolding": 22
+        },
+        {
+            "id": 90,
+            "traits": {
+                "number_of_averaging_periods": 8041,
+                "minimum_buy_momentum": 5.25831168469063,
+                "maximum_buy_momentum": 7.8211843972053305,
+                "trailing_stop_loss": 8.219794677821701,
+                "stop_loss": 0.8775696057482807,
+                "minimum_holding_periods": 1306,
+                "maximum_holding_periods": 75637,
+                "percent_purchase": 72.13188984327601,
+                "target_sell_percentage": 12.7191838805211
+            },
+            "money": 7436.6235634447385,
+            "currentHoldings": [],
+            "fitness": 7436.6235634447385,
+            "startTime": 1515034800,
+            "endTime": 1604674800,
+            "numberOfSoldHolding": 81
+        },
+        {
+            "id": 0,
+            "traits": {
+              "number_of_averaging_periods": 8041,
+              "minimum_buy_momentum": 5.25831168469063,
+              "maximum_buy_momentum": 7.621009764889997,
+              "trailing_stop_loss": 9.599459464253169,
+              "stop_loss": 4.673076936028064,
+              "minimum_holding_periods": 1268,
+              "maximum_holding_periods": 77877,
+              "percent_purchase": 99.6719124259489,
+              "target_sell_percentage": 12.7191838805211
+            },
+            "money": 9283.43502264807,
+            "currentHoldings": [],
+            "fitness": 9283.43502264807,
+            "startTime": 1515034800,
+            "endTime": 1604674800,
+            "numberOfSoldHolding": 28,
+            "stats": {
+                "wins": 24,
+                "losses": 4,
+                "winRation": 85.71428571428571,
+                "sellReasons": {
+                  "TargetedSellPrice": 24,
+                  "StopLoss": 3,
+                  "Forced": 1
+                }
+            }
+        }
+    ]
 }

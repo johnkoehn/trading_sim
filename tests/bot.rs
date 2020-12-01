@@ -1,15 +1,13 @@
 use trading_sim::bot::Bot;
+use trading_sim::bot;
 use trading_sim::price_data::PriceData;
 use trading_sim::bot::traits::Traits;
 use trading_sim::bot::holdings::{CurrentHolding, SoldHolding, SellReason};
 use trading_sim::config::Config;
 use trading_sim::asset::Asset;
 use std::sync::Arc;
-use trading_sim::*;
 use std::fs;
-use std::f64;
 extern crate trading_sim;
-use chrono::{NaiveDateTime};
 
 #[macro_use]
 extern crate approx;
@@ -39,6 +37,7 @@ mod bot_assets {
             id: 0,
             traits,
             money: 1000.0,
+            value_history: Vec::<bot::ValueHistory>::new(),
             current_holdings: Vec::<CurrentHolding>::new(),
             sold_holdings: Vec::<SoldHolding>::new(),
             fitness: 0.0,
