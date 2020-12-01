@@ -15,11 +15,19 @@ pub struct Bot {
     pub id: u64,
     pub traits: Traits,
     pub money: f64,
+    pub value_history: Vec<ValueHistory>,
     pub current_holdings: Vec<CurrentHolding>,
     pub sold_holdings: Vec<SoldHolding>,
     pub fitness: f64,
     pub start_time: Option<u64>,
     pub end_time: Option<u64>
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ValueHistory {
+    pub value: f64,
+    pub time: u64
 }
 
 fn calculate_momentum(current_price: f64, previous_price: f64) -> f64 {
@@ -71,6 +79,7 @@ impl Bot {
             id,
             traits: Traits::new(config),
             money: config.starting_money,
+            value_history: Vec::<ValueHistory>::new(),
             current_holdings: Vec::<CurrentHolding>::new(),
             sold_holdings: Vec::<SoldHolding>::new(),
             fitness: 0.0,
@@ -87,6 +96,7 @@ impl Bot {
             id,
             traits: traits_copy,
             money,
+            value_history: Vec::<ValueHistory>::new(),
             current_holdings: Vec::<CurrentHolding>::new(),
             sold_holdings: Vec::<SoldHolding>::new(),
             fitness: 0.0,
@@ -150,6 +160,11 @@ impl Bot {
             }
         }
 
+
+        if sold_holdings.len() > 0 {
+            self.update_value_history(current_price_data);
+        }
+
         // update the amount of money
         sold_holdings
             .iter()
@@ -178,6 +193,20 @@ impl Bot {
 
         // in sell all we update the fitness of the bot since it's meant to be the final run
         self.calculate_fitness();
+    }
+
+    fn update_value_history(&mut self, current_price_data: &PriceData) {
+        let price = current_price_data.open;
+        let holding_value: f64 = self.current_holdings
+            .iter()
+            .map(|x| x.amount * price)
+            .sum();
+        let total_value = self.money + holding_value;
+
+        self.value_history.push(ValueHistory {
+            value: total_value,
+            time: current_price_data.time
+        })
     }
 
     // TODO: For now we will check every period
@@ -313,6 +342,7 @@ impl Bot {
             id,
             traits,
             money: config.starting_money,
+            value_history: Vec::<ValueHistory>::new(),
             current_holdings: Vec::<CurrentHolding>::new(),
             sold_holdings: Vec::<SoldHolding>::new(),
             fitness: 0.0,
