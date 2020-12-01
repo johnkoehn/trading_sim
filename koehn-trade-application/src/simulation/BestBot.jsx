@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactJson from 'react-json-view';
 import PurchaseHistory from './Graphs/PurchaseHistory';
+import ValueHistory from './Graphs/ValueHistory';
 
 function findBestBotInGeneration(generation) {
     return generation.reduce((bestBot, bot) => {
@@ -40,10 +41,27 @@ function calculateBotStats(bestBot) {
         losses: 0
     });
 
+    const sellReasons = soldHoldings.reduce((acc, holding) => {
+        const sellReason = holding.sellReason;
+
+        if (!acc[sellReason]) {
+            return {
+                ...acc,
+                [sellReason]: 1
+            };
+        }
+
+        return {
+            ...acc,
+            [sellReason]: acc[sellReason] + 1
+        };
+    }, {});
+
     return {
         wins,
         losses,
-        winRation: (wins / soldHoldings.length) * 100
+        winRation: (wins / soldHoldings.length) * 100,
+        sellReasons
     };
 }
 
@@ -58,6 +76,7 @@ function renderBotStats(runningSimulation, bestBot) {
         <>
             <PurchaseHistory bot={bestBot} />
             <ReactJson src={calculateBotStats(bestBot)} theme="monokai" />
+            <ValueHistory bot={bestBot} />
         </>
     );
 }
