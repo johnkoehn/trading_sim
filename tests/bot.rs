@@ -47,7 +47,7 @@ mod bot_assets {
 
     fn generate_price_history () -> Vec<PriceData> {
         let price_point1 = PriceData {
-            time: NaiveDateTime::from_timestamp(1515034800, 0),
+            time: 1515034800,
             low: 100.0,
             high: 110.0,
             open: 100.0,
@@ -55,7 +55,7 @@ mod bot_assets {
             volume: 100.0
         };
         let price_point2 = PriceData {
-            time: NaiveDateTime::from_timestamp(1515033900, 0),
+            time: 1515033900,
             low: 102.0,
             high: 105.0,
             open: 102.0,
@@ -64,7 +64,7 @@ mod bot_assets {
         };
 
         let price_point3 = PriceData {
-            time: NaiveDateTime::from_timestamp(1515033000, 0),
+            time: 1515033000,
             low: 100.0,
             high: 110.0,
             open: 105.0,
@@ -126,6 +126,8 @@ mod bot_assets {
         assert_relative_eq!(first_sold_holding.money_from_sell, 963.79, max_relative = 0.001);
         assert_relative_eq!(first_sold_holding.amount_gained, 57.5, max_relative = 0.001);
         assert_relative_eq!(first_sold_holding.percent_gained, 6.34, max_relative = 0.001);
+        assert_eq!(first_sold_holding.sell_time, 1515033000);
+        assert_eq!(first_sold_holding.purchase_time, 1515033900);
         assert_eq!(first_sold_holding.win, true);
         assert_eq!(first_sold_holding.sell_reason, SellReason::Forced);
 
@@ -146,7 +148,7 @@ mod bot_assets {
         price_point.high = 105.0;
 
         let fourth_price_point = PriceData {
-            time: NaiveDateTime::from_timestamp(1515033000, 0),
+            time: 1515033000,
             low: 100.0,
             high: 110.0,
             open: 105.0,
@@ -195,7 +197,7 @@ mod bot_assets {
         price_point.high = 105.0;
 
         let fourth_price_point = PriceData {
-            time: NaiveDateTime::from_timestamp(1515033000, 0),
+            time: 1515033000,
             low: 100.0,
             high: 110.0,
             open: 105.0,
@@ -247,7 +249,7 @@ mod bot_assets {
         price_point.high = 105.0;
 
         let fourth_price_point = PriceData {
-            time: NaiveDateTime::from_timestamp(1515033000, 0),
+            time: 1515033000,
             low: 100.0,
             high: 106.0,
             open: 105.0,
@@ -256,7 +258,7 @@ mod bot_assets {
         };
         price_history.push(fourth_price_point);
         let fifth_price_point = PriceData {
-            time: NaiveDateTime::from_timestamp(1515039000, 0),
+            time: 1515039000,
             low: 100.0,
             high: 106.0,
             open: 105.0,
@@ -305,7 +307,7 @@ mod bot_assets {
         price_point.close = 105.0;
 
         let fourth_price_point = PriceData {
-            time: NaiveDateTime::from_timestamp(1515033000, 0),
+            time: 1515033000,
             low: 100.0,
             high: 110.0,
             open: 105.0,

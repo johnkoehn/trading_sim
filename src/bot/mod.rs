@@ -74,6 +74,20 @@ impl Bot {
         }
     }
 
+    pub fn create_clone(&self, config: &Config, id: u64) -> Bot {
+        let traits_copy = self.traits.clone();
+        let money = config.starting_money;
+
+        Bot {
+            id,
+            traits: traits_copy,
+            money,
+            current_holdings: Vec::<CurrentHolding>::new(),
+            sold_holdings: Vec::<SoldHolding>::new(),
+            fitness: 0.0
+        }
+    }
+
     fn handle_buy(&mut self, config: &Config, current_price_data: &PriceData, old_price_data: &PriceData) {
         let money_to_spend = self.money * (self.traits.percent_purchase / 100.0);
         if money_to_spend < config.minimum_purchase_size {
@@ -93,7 +107,7 @@ impl Bot {
         let fee = money_spent_no_fee * config.transaction_fee_as_percentage;
         let money_spent = money_spent_no_fee + fee;
 
-        let new_holding = CurrentHolding::new(current_price, amount_to_buy, money_spent, Asset::ETH, &self.traits, fee);
+        let new_holding = CurrentHolding::new(current_price, current_price_data.time, amount_to_buy, money_spent, Asset::ETH, &self.traits, fee);
 
         self.current_holdings.push(new_holding);
         self.money -= money_spent;
@@ -113,13 +127,13 @@ impl Bot {
                     let sell_fee = calculate_sell_fee(holding.targeted_sell_price, config.transaction_fee_as_percentage, holding.amount);
                     let money_from_sell = calculate_money_from_sell(holding.targeted_sell_price, sell_fee, holding.amount);
 
-                    return SoldHolding::new(&holding, holding.targeted_sell_price, money_from_sell, sell_fee, reason);
+                    return SoldHolding::new(&holding, holding.targeted_sell_price, money_from_sell, sell_fee, reason, current_price_data.time);
                 }
 
                 let sell_fee = calculate_sell_fee(current_price_data.close, config.transaction_fee_as_percentage, holding.amount);
                 let money_from_sell = calculate_money_from_sell(current_price_data.close, sell_fee, holding.amount);
 
-                return SoldHolding::new(&holding, current_price_data.close, money_from_sell, sell_fee, reason);
+                return SoldHolding::new(&holding, current_price_data.close, money_from_sell, sell_fee, reason, current_price_data.time);
             };
 
             let sell_reason = get_sell_reason(&self.traits, &holding, &current_price_data);
@@ -150,7 +164,7 @@ impl Bot {
             let sell_fee = calculate_sell_fee(current_price_data.close, transaction_fee_as_percentage, holding.amount);
             let money_from_sell = calculate_money_from_sell(current_price_data.close, sell_fee, holding.amount);
 
-            self.sold_holdings.push(SoldHolding::new(&holding, current_price_data.close, money_from_sell, sell_fee, SellReason::Forced));
+            self.sold_holdings.push(SoldHolding::new(&holding, current_price_data.close, money_from_sell, sell_fee, SellReason::Forced, current_price_data.time));
             self.money += money_from_sell;
         }
         self.current_holdings.clear();

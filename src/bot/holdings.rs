@@ -14,6 +14,7 @@ pub enum SellReason {
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub struct CurrentHolding {
     pub asset: Asset,
+    pub purchase_time: u64,
     pub amount: f64,
     pub money_spent: f64,
     pub purchase_price: f64,
@@ -37,10 +38,11 @@ fn calculate_targeted_sell_price(purchase_price: f64, target_sell_percentage: f6
 }
 
 impl CurrentHolding {
-    pub fn new(purchase_price: f64, amount: f64, money_spent: f64, asset: Asset, traits: &Traits, buy_fee: f64) -> CurrentHolding {
+    pub fn new(purchase_price: f64, purchase_time: u64, amount: f64, money_spent: f64, asset: Asset, traits: &Traits, buy_fee: f64) -> CurrentHolding {
         CurrentHolding {
             asset,
             amount,
+            purchase_time,
             money_spent,
             purchase_price,
             stop_loss: calculate_stop_loss(purchase_price, traits.stop_loss),
@@ -66,6 +68,8 @@ impl CurrentHolding {
 pub struct SoldHolding {
     pub asset: Asset,
     pub amount: f64,
+    pub purchase_time: u64,
+    pub sell_time: u64,
     pub purchase_price: f64,
     pub money_spent: f64,
     pub periods_held: u64,
@@ -83,9 +87,11 @@ pub struct SoldHolding {
 }
 
 impl SoldHolding {
-    pub fn new(holding_sold: &CurrentHolding, sell_price: f64, money_from_sell: f64, sell_fee: f64, sell_reason: SellReason) -> SoldHolding {
+    pub fn new(holding_sold: &CurrentHolding, sell_price: f64, money_from_sell: f64, sell_fee: f64, sell_reason: SellReason, sell_time: u64) -> SoldHolding {
         SoldHolding {
             asset: holding_sold.asset,
+            purchase_time: holding_sold.purchase_time,
+            sell_time: sell_time,
             amount: holding_sold.amount,
             purchase_price: holding_sold.purchase_price,
             money_spent: holding_sold.money_spent,

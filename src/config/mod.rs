@@ -33,7 +33,8 @@ pub struct Config {
     pub transaction_fee_as_percentage: f64,
     pub number_of_threads: u64,
     pub mutation_chance: f64,
-    pub hamming: f64
+    pub hamming: f64,
+    pub elite_bot_carry_over: u64
 }
 
 impl Config {
@@ -115,6 +116,10 @@ impl Config {
 
         if self.hamming < 0.0 || self.hamming > 100.0 {
             config_errors.push(ConfigError::new("Hamming must be between 0 and 100".to_string(), "Hamming".to_string()));
+        }
+
+        if self.elite_bot_carry_over >= self.number_of_bots {
+            config_errors.push(ConfigError::new("Number of elite bot carry over must be less then the number of bots".to_string(), "EliteBotCarryOver".to_string()));
         }
 
         return config_errors;
