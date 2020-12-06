@@ -95,7 +95,8 @@ impl Simulation {
     pub fn web_create(path_to_price_history: &str, config: Config, id: String) -> Result<Simulation, Box<dyn Error>> {
         let price_history_as_json = fs::read_to_string(path_to_price_history)?;
 
-        let price_history: Vec<PriceData> = serde_json::from_str(&price_history_as_json.as_str())?;
+        let mut price_history: Vec<PriceData> = serde_json::from_str(&price_history_as_json.as_str())?;
+        price_history.sort_by(|a, b| a.time.cmp(&b.time));
 
         if config.validate_config().len() > 0 {
             panic!("Config validation failed!")
